@@ -2,7 +2,6 @@ import Phaser from 'phaser';
 import {
   GRID,
   GAME_HEIGHT,
-  WORLD_WIDTH,
   COLORS,
   HUD_FONT_FAMILY,
   GAME_NAME,
@@ -23,8 +22,8 @@ export class PlayAreaOccluderSystem {
 
   constructor(scene: Phaser.Scene, floorSurfaceY: number, layout: PlayfieldLayout) {
     this.floorBottomY = floorSurfaceY + GRID;
-    this.playWidth = WORLD_WIDTH - 2 * GRID;
-    this.playCenterX = layout.towerLeft + WORLD_WIDTH / 2;
+    this.playWidth = layout.towerWidth - 2 * GRID;
+    this.playCenterX = layout.towerLeft + layout.towerWidth / 2;
 
     scene.add
       .rectangle(

@@ -9,16 +9,36 @@ export class PlayfieldLayout {
     return this.scene.scale.width;
   }
 
+  /** Tower playfield width — full viewport on narrow screens, authored width when wider */
+  get towerWidth(): number {
+    return Math.min(WORLD_WIDTH, this.gameWidth);
+  }
+
   get towerLeft(): number {
-    return Math.max(0, (this.gameWidth - WORLD_WIDTH) / 2);
+    return Math.max(0, (this.gameWidth - this.towerWidth) / 2);
   }
 
   get towerRight(): number {
-    return this.towerLeft + WORLD_WIDTH;
+    return this.towerLeft + this.towerWidth;
+  }
+
+  get needsTowerScale(): boolean {
+    return this.towerWidth < WORLD_WIDTH;
   }
 
   get wrapWidth(): number {
     return this.gameWidth;
+  }
+
+  towerWidthInTiles(): number {
+    return Math.floor(this.towerWidth / GRID);
+  }
+
+  scaleTowerTile(value: number): number {
+    if (!this.needsTowerScale) return value;
+    return Math.round(
+      (value / WIDTH_IN_TILES) * this.towerWidthInTiles()
+    );
   }
 
   wrapWidthInTiles(): number {

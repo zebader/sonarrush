@@ -3,14 +3,12 @@ import {
   GRID,
   PLAYER_HEIGHT,
   TOTAL_LEVELS,
-  WIDTH_IN_TILES,
-  WORLD_WIDTH,
   POWER_UP_FLOAT_Y,
   HORIZONTAL_WRAP_MAX_PLATFORM_TILES,
   HORIZONTAL_WRAP_MIN_PLATFORM_TILES,
   HORIZONTAL_WRAP_REVERSE_SPEED,
 } from '../config/constants';
-import { LEVELS, LevelDefinition, TileRect } from '../data/levels';
+import { LEVELS, LevelDefinition, TileRect, MovingPlatformDef } from '../data/levels';
 import { Player } from '../entities/Player';
 import { MovingPlatformSystem } from './MovingPlatformSystem';
 import { ProjectileSystem } from './ProjectileSystem';
@@ -171,13 +169,13 @@ export class LevelManager {
       const isWrap = built.definition.mode === 'horizontalWrap';
       const widthInTiles = isWrap
         ? this.layout.wrapWidthInTiles()
-        : WIDTH_IN_TILES;
+        : this.layout.towerWidthInTiles();
       const tileX = isWrap
         ? this.layout.scaleWrapTile(platform.x, widthInTiles)
-        : platform.x;
+        : this.layout.scaleTowerTile(platform.x);
       const tileW = isWrap
         ? Math.max(2, this.layout.scaleWrapTile(platform.w, widthInTiles))
-        : platform.w;
+        : Math.max(1, this.layout.scaleTowerTile(platform.w));
 
       spawns.push({
         x:
@@ -235,7 +233,13 @@ export class LevelManager {
     }
 
     const xOffset = isWrap ? 0 : this.layout.towerLeft;
-    this.movingPlatforms.build(definition.movingPlatforms, worldY, xOffset);
+    this.movingPlatforms.build(
+      definition.movingPlatforms.map((def) =>
+        this.resolveMovingPlatformDef(definition, def)
+      ),
+      worldY,
+      xOffset
+    );
     this.projectiles.build(
       definition.projectileSpawners,
       worldY,
@@ -258,7 +262,7 @@ export class LevelManager {
       return { roomWidth, centerX: roomWidth / 2, floorLeft: 0 };
     }
 
-    const roomWidth = definition.widthInTiles * GRID;
+    const roomWidth = this.layout.towerWidth;
     return {
       roomWidth,
       centerX: this.layout.towerLeft + roomWidth / 2,
@@ -271,10 +275,45 @@ export class LevelManager {
     centerX: number;
     floorLeft: number;
   } {
+    const roomWidth = this.layout.towerWidth;
     return {
-      roomWidth: WORLD_WIDTH,
-      centerX: this.layout.towerLeft + WORLD_WIDTH / 2,
+      roomWidth,
+      centerX: this.layout.towerLeft + roomWidth / 2,
       floorLeft: this.layout.towerLeft,
+    };
+  }
+
+  private resolveMovingPlatformDef(
+    definition: LevelDefinition,
+    def: MovingPlatformDef
+  ): MovingPlatformDef {
+    if (definition.mode === 'horizontalWrap') {
+      const widthInTiles = this.layout.wrapWidthInTiles();
+      return {
+        ...def,
+        x: this.layout.scaleWrapTile(def.x, widthInTiles),
+        w: Math.max(1, this.layout.scaleWrapTile(def.w, widthInTiles)),
+        rangeTiles: this.layout.scaleWrapTile(def.rangeTiles, widthInTiles),
+      };
+    }
+
+    if (!this.layout.needsTowerScale) return def;
+
+    return {
+      ...def,
+      x: this.layout.scaleTowerTile(def.x),
+      w: Math.max(1, this.layout.scaleTowerTile(def.w)),
+      rangeTiles: this.layout.scaleTowerTile(def.rangeTiles),
+    };
+  }
+
+  private resolveTowerPlatformTile(platform: TileRect): TileRect {
+    if (!this.layout.needsTowerScale) return platform;
+
+    return {
+      ...platform,
+      x: this.layout.scaleTowerTile(platform.x),
+      w: Math.max(1, this.layout.scaleTowerTile(platform.w)),
     };
   }
 
@@ -443,7 +482,7 @@ export class LevelManager {
     platform: TileRect
   ): TileRect {
     if (definition.mode !== 'horizontalWrap') {
-      return platform;
+      return this.resolveTowerPlatformTile(platform);
     }
 
     const widthInTiles = this.layout.wrapWidthInTiles();

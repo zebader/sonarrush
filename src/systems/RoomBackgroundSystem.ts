@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GRID, WORLD_WIDTH } from '../config/constants';
+import { GRID } from '../config/constants';
 import { BuiltLevel } from './LevelManager';
 import { PlayfieldLayout } from './PlayfieldLayout';
 import {
@@ -46,8 +46,9 @@ export class RoomBackgroundSystem {
   }
 
   private buildTowerRoom(centerY: number, roomHeight: number): void {
-    const centerX = this.layout.towerLeft + WORLD_WIDTH / 2;
-    const { width, height } = fitSizeToBox(WORLD_WIDTH, roomHeight);
+    const roomWidth = this.layout.towerWidth;
+    const centerX = this.layout.towerLeft + roomWidth / 2;
+    const { width, height } = fitSizeToBox(roomWidth, roomHeight);
 
     this.scene.add
       .image(centerX, centerY, ROOM_BG_KEY)
