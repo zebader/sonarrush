@@ -28,6 +28,12 @@ import {
   PLAYER_SPRITE_FRAME_WIDTH,
   PLAYER_SPRITE_FRAME_HEIGHT,
   PLAYER_AIR_SPRITE_FRAME_COUNT,
+  PROJECTILE_SPRITE_KEY,
+  PROJECTILE_ANIM_KEY,
+  PROJECTILE_SPRITE_FRAME_WIDTH,
+  PROJECTILE_SPRITE_FRAME_HEIGHT,
+  PROJECTILE_SPRITE_FRAME_COUNT,
+  PROJECTILE_SPRITE_ROW,
 } from '../config/constants';
 import {
   TILESET_KEY as TERRAIN_TILESET_KEY,
@@ -81,6 +87,10 @@ export class GameScene extends Phaser.Scene {
       frameHeight: TERRAIN_FRAME_SIZE,
     });
     this.load.image(ROOM_BG_KEY, 'assets/room-bg.png');
+    this.load.spritesheet(PROJECTILE_SPRITE_KEY, 'assets/fireballs.png', {
+      frameWidth: PROJECTILE_SPRITE_FRAME_WIDTH,
+      frameHeight: PROJECTILE_SPRITE_FRAME_HEIGHT,
+    });
   }
 
   create(): void {
@@ -120,6 +130,17 @@ export class GameScene extends Phaser.Scene {
       frames: this.anims.generateFrameNumbers(PLAYER_FALL_SPRITE_KEY, {
         start: 0,
         end: PLAYER_AIR_SPRITE_FRAME_COUNT - 1,
+      }),
+      frameRate: 12,
+      repeat: -1,
+    });
+    const projectileFrameStart =
+      PROJECTILE_SPRITE_ROW * PROJECTILE_SPRITE_FRAME_COUNT;
+    this.anims.create({
+      key: PROJECTILE_ANIM_KEY,
+      frames: this.anims.generateFrameNumbers(PROJECTILE_SPRITE_KEY, {
+        start: projectileFrameStart,
+        end: projectileFrameStart + PROJECTILE_SPRITE_FRAME_COUNT - 1,
       }),
       frameRate: 12,
       repeat: -1,

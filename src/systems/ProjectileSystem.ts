@@ -1,5 +1,14 @@
 import Phaser from 'phaser';
-import { GRID, COLORS, WORLD_WIDTH } from '../config/constants';
+import {
+  GRID,
+  WORLD_WIDTH,
+  PROJECTILE_SPRITE_KEY,
+  PROJECTILE_ANIM_KEY,
+  PROJECTILE_SPRITE_FRAME_WIDTH,
+  PROJECTILE_SPRITE_FRAME_HEIGHT,
+  PROJECTILE_SPRITE_SCALE,
+  PROJECTILE_SIZE,
+} from '../config/constants';
 import { ProjectileSpawnerDef } from '../data/levels';
 import { Player } from '../entities/Player';
 
@@ -55,10 +64,10 @@ export class ProjectileSystem {
     }
 
     for (const child of this.group.getChildren()) {
-      const rect = child as Phaser.GameObjects.Rectangle;
+      const sprite = child as Phaser.Physics.Arcade.Sprite;
       const bounds = this.getCombinedBounds();
-      if (rect.x < bounds.left - GRID || rect.x > bounds.right + GRID) {
-        rect.destroy();
+      if (sprite.x < bounds.left - GRID || sprite.x > bounds.right + GRID) {
+        sprite.destroy();
       }
     }
   }
@@ -76,21 +85,32 @@ export class ProjectileSystem {
   }
 
   private fire(spawner: SpawnerState): void {
-    const size = GRID * 0.4;
     const y = spawner.worldY + spawner.y * GRID + GRID / 2;
 
     const x =
       spawner.direction === 1
-        ? spawner.playLeft + size
-        : spawner.playRight - size;
+        ? spawner.playLeft + PROJECTILE_SIZE
+        : spawner.playRight - PROJECTILE_SIZE;
 
-    const projectile = this.scene.add.rectangle(
+    const projectile = this.scene.physics.add.sprite(
       x,
       y,
-      size,
-      size,
-      COLORS.projectile
+      PROJECTILE_SPRITE_KEY,
+      0
     );
+    projectile.setScale(PROJECTILE_SPRITE_SCALE);
+    projectile.setOrigin(0.5, 0.5);
+    projectile.setFlipX(spawner.direction === -1);
+    projectile.play(PROJECTILE_ANIM_KEY);
+
+    const bodyWidth = PROJECTILE_SIZE / PROJECTILE_SPRITE_SCALE;
+    const bodyHeight = PROJECTILE_SIZE / PROJECTILE_SPRITE_SCALE;
+    projectile.body.setSize(bodyWidth, bodyHeight);
+    projectile.body.setOffset(
+      (PROJECTILE_SPRITE_FRAME_WIDTH - bodyWidth) / 2,
+      (PROJECTILE_SPRITE_FRAME_HEIGHT - bodyHeight) / 2
+    );
+
     this.group.add(projectile);
     const body = projectile.body as Phaser.Physics.Arcade.Body;
     body.setAllowGravity(false);

@@ -56,7 +56,7 @@ export const HUD_FONT_FAMILY = '"Pixelify Sans", cursive';
 export const GAME_NAME = 'Sonar Rush';
 
 /** Reach the top before this runs out */
-export const GAME_TIME_SECONDS = 300;
+export const GAME_TIME_SECONDS = 600;
 /** Seconds removed from the timer on projectile hit or fall */
 export const HIT_TIME_PENALTY_SECONDS = 30;
 /** Brief invulnerability after a hit — player keeps moving, no further hits */
@@ -75,6 +75,16 @@ export const POWER_UP_CAN_WIDTH =
   (POWER_UP_CAN_HEIGHT * POWER_UP_CAN_SOURCE_WIDTH) / POWER_UP_CAN_SOURCE_HEIGHT;
 /** Center floats this far above the platform surface */
 export const POWER_UP_FLOAT_Y = POWER_UP_CAN_HEIGHT / 2 + GRID * 0.35;
+
+export const PROJECTILE_SPRITE_KEY = 'fireballs';
+export const PROJECTILE_ANIM_KEY = 'fireball';
+export const PROJECTILE_SPRITE_FRAME_WIDTH = 32;
+export const PROJECTILE_SPRITE_FRAME_HEIGHT = 32;
+export const PROJECTILE_SPRITE_FRAME_COUNT = 4;
+export const PROJECTILE_SPRITE_ROW = 0;
+export const PROJECTILE_SIZE = GRID * 0.4;
+export const PROJECTILE_SPRITE_SCALE =
+  PROJECTILE_SIZE / PROJECTILE_SPRITE_FRAME_WIDTH;
 
 export const CAMERA_FOLLOW_LERP = 0.12;
 export const CAMERA_PLAYER_ANCHOR = 0.58;
