@@ -43,6 +43,12 @@ export type OneWayFloorRecord = {
   visual: Phaser.GameObjects.TileSprite;
 };
 
+export type OneWayPlatformRecord = {
+  rect: Phaser.GameObjects.Rectangle;
+  surfaceY: number;
+  chunkId: string;
+};
+
 export class LevelManager {
   private scene: Phaser.Scene;
   private layout: PlayfieldLayout;
@@ -56,6 +62,7 @@ export class LevelManager {
 
   readonly builtLevels: BuiltLevel[] = [];
   readonly oneWayFloors: OneWayFloorRecord[] = [];
+  readonly oneWayPlatforms: OneWayPlatformRecord[] = [];
 
   private topWorldY = 0;
 
@@ -522,6 +529,12 @@ export class LevelManager {
       rect.setData('chunkId', chunkId);
       if (definition.mode === 'horizontalWrap' && platform.scrollDir !== undefined) {
         rect.setData('scrollDir', platform.scrollDir);
+        rect.setData('oneWay', true);
+        this.oneWayPlatforms.push({
+          rect,
+          surfaceY: worldY + tile.y * GRID,
+          chunkId,
+        });
       }
     }
   }

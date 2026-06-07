@@ -115,6 +115,10 @@ export class HorizontalWrapSystem {
     player: Player,
     rect: Phaser.GameObjects.Rectangle
   ): boolean {
+    if (rect.getData('oneWay')) {
+      return player.standingOneWayPlatform === rect;
+    }
+
     if (!player.body.touching.down) return false;
     return this.scene.physics.overlap(player, rect) ?? false;
   }

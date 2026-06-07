@@ -34,6 +34,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   powerUpEndsAt = 0;
   /** Set by OneWayFloorSystem when standing on a passed checkpoint floor */
   oneWayGrounded = false;
+  /** Active one-way scroll platform the player is standing on, if any */
+  standingOneWayPlatform: Phaser.GameObjects.Rectangle | null = null;
   /** Synced from PlayerController while wall-sliding (for scrolling platforms) */
   wallSlideSide: 'left' | 'right' | null = null;
 
@@ -127,6 +129,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.isInvulnerable = false;
     this.jumpBuffered = false;
     this.oneWayGrounded = false;
+    this.standingOneWayPlatform = null;
     this.wallSlideSide = null;
     this.powerUpActive = false;
     this.powerUpEndsAt = 0;

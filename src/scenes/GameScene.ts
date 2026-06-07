@@ -154,7 +154,13 @@ export class GameScene extends Phaser.Scene {
     );
 
     this.physics.add.collider(this.player, this.levelManager.solidFloors);
-    this.physics.add.collider(this.player, this.levelManager.platforms);
+    this.physics.add.collider(
+      this.player,
+      this.levelManager.platforms,
+      undefined,
+      (_player, platform) =>
+        !(platform as Phaser.GameObjects.Rectangle).getData('oneWay')
+    );
     this.physics.add.collider(
       this.player,
       this.levelManager.movingPlatforms.group
@@ -255,10 +261,14 @@ export class GameScene extends Phaser.Scene {
     this.tickTimer(this.game.loop.delta);
 
     this.oneWayFloors.apply(this.player, this.levelManager.oneWayFloors);
+    this.oneWayFloors.applyPlatforms(
+      this.player,
+      this.levelManager.oneWayPlatforms
+    );
+    this.levelManager.update(this.time.now, this.player, this.game.loop.delta);
 
     this.playerController.update();
     this.updateCheckpoint();
-    this.levelManager.update(this.time.now, this.player, this.game.loop.delta);
     this.cameraController.update(this.time.now, this.game.loop.delta);
     this.playAreaOccluder.update(this.cameras.main.scrollY);
     this.updatePowerUpState();
