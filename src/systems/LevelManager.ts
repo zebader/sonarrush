@@ -16,10 +16,18 @@ import { MovingPlatformSystem } from './MovingPlatformSystem';
 import { ProjectileSystem } from './ProjectileSystem';
 import { HorizontalWrapSystem } from './HorizontalWrapSystem';
 import { PlayfieldLayout } from './PlayfieldLayout';
-import { TERRAIN_FRAMES } from '../config/terrainTiles';
+import {
+  TERRAIN_FRAMES,
+  CONCRETE_WALL_KEY,
+  CONCRETE_WALL_LEVELS,
+  BEAM_FLOOR_KEY,
+  BEAM_FLOOR_LEVELS,
+  FIRST_FLOOR_KEY,
+} from '../config/terrainTiles';
 import {
   attachTerrainVisual,
   createTerrainStrip,
+  TerrainStripOptions,
 } from './TerrainVisuals';
 import { RoomBackgroundSystem } from './RoomBackgroundSystem';
 
@@ -373,13 +381,21 @@ export class LevelManager {
         continue;
       }
 
+      const isGroundFloor = isFirst && tileY === groundFloorTile;
+      const floorTexture = isGroundFloor
+        ? FIRST_FLOOR_KEY
+        : BEAM_FLOOR_LEVELS.includes(definition.level)
+          ? BEAM_FLOOR_KEY
+          : undefined;
+
       const rect = createTerrainStrip(
         this.scene,
         centerX,
         y,
         roomWidth,
         GRID,
-        TERRAIN_FRAMES.floor
+        TERRAIN_FRAMES.floor,
+        { textureKey: floorTexture }
       );
 
       if (isOneWay) {
@@ -405,7 +421,9 @@ export class LevelManager {
         body.setData('floorSurfaceY', surfaceY);
         body.setData('floorTileY', tileY);
         body.setData('chunkId', chunkId);
-        attachTerrainVisual(this.scene, body, TERRAIN_FRAMES.floor);
+        attachTerrainVisual(this.scene, body, TERRAIN_FRAMES.floor, {
+          textureKey: floorTexture,
+        });
         this.solidFloors.add(body);
       }
     }
@@ -503,14 +521,27 @@ export class LevelManager {
 
     const roomHeight = definition.heightInTiles * GRID;
     const wallWidth = GRID;
+    // Concrete texture is authored for the left wall; flip on the right
+    // so the dark edge faces the room interior
+    const textureKey = CONCRETE_WALL_LEVELS.includes(definition.level)
+      ? CONCRETE_WALL_KEY
+      : undefined;
 
-    this.addWall(this.layout.towerLeft, worldY, wallWidth, roomHeight, false);
+    this.addWall(
+      this.layout.towerLeft,
+      worldY,
+      wallWidth,
+      roomHeight,
+      false,
+      textureKey
+    );
     this.addWall(
       this.layout.towerRight - wallWidth,
       worldY,
       wallWidth,
       roomHeight,
-      true
+      true,
+      textureKey
     );
   }
 
@@ -575,7 +606,8 @@ export class LevelManager {
     y: number,
     w: number,
     h: number,
-    flipX: boolean
+    flipX: boolean,
+    textureKey?: string
   ): void {
     this.addStaticBody(
       this.walls,
@@ -584,7 +616,7 @@ export class LevelManager {
       w,
       h,
       TERRAIN_FRAMES.wall,
-      { flipX }
+      { flipX, textureKey }
     );
   }
 
@@ -608,7 +640,7 @@ export class LevelManager {
     w: number,
     h: number,
     terrainFrame: number,
-    options?: { tint?: number; flipX?: boolean }
+    options?: TerrainStripOptions
   ): Phaser.GameObjects.Rectangle {
     const rect = this.scene.add.rectangle(x, y, w, h, 0x000000, 0);
     this.scene.physics.add.existing(rect, true);

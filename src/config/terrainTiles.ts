@@ -19,3 +19,20 @@ export const TERRAIN_FRAMES = {
 } as const;
 
 export const TERRAIN_DEPTH = -5;
+
+/** 32×32 concrete texture for side walls — authored facing the left wall */
+export const CONCRETE_WALL_KEY = 'concrete-wall';
+/** Rooms whose side walls use the concrete texture (right wall flipped) */
+export const CONCRETE_WALL_LEVELS: readonly number[] = [1, 2];
+
+/** 32×32 dark beam texture for checkpoint floor strips */
+export const BEAM_FLOOR_KEY = 'beam-floor';
+/**
+ * Levels whose checkpoint floors use the beam texture.
+ * Level 1 builds the floor topping room 1 (2nd floor), level 2 the one
+ * topping room 2 (3rd floor); the starting ground floor has its own texture.
+ */
+export const BEAM_FLOOR_LEVELS: readonly number[] = [1, 2];
+
+/** 32×32 texture for the starting ground floor only */
+export const FIRST_FLOOR_KEY = 'first-floor';

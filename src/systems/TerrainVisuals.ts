@@ -5,6 +5,13 @@ import {
   TERRAIN_DEPTH,
 } from '../config/terrainTiles';
 
+export type TerrainStripOptions = {
+  tint?: number;
+  flipX?: boolean;
+  /** Standalone texture (native GRID-sized) instead of a tileset frame */
+  textureKey?: string;
+};
+
 export function createTerrainStrip(
   scene: Phaser.Scene,
   x: number,
@@ -12,10 +19,12 @@ export function createTerrainStrip(
   width: number,
   height: number,
   frame: number,
-  options?: { tint?: number; flipX?: boolean }
+  options?: TerrainStripOptions
 ): Phaser.GameObjects.TileSprite {
-  const strip = scene.add.tileSprite(x, y, width, height, TILESET_KEY, frame);
-  strip.setTileScale(TILESET_TILE_SCALE);
+  const strip = options?.textureKey
+    ? scene.add.tileSprite(x, y, width, height, options.textureKey)
+    : scene.add.tileSprite(x, y, width, height, TILESET_KEY, frame);
+  strip.setTileScale(options?.textureKey ? 1 : TILESET_TILE_SCALE);
   strip.setDepth(TERRAIN_DEPTH);
   if (options?.tint !== undefined) {
     strip.setTint(options.tint);
@@ -30,7 +39,7 @@ export function attachTerrainVisual(
   scene: Phaser.Scene,
   body: Phaser.GameObjects.Rectangle,
   frame: number,
-  options?: { tint?: number; flipX?: boolean }
+  options?: TerrainStripOptions
 ): Phaser.GameObjects.TileSprite {
   const visual = createTerrainStrip(
     scene,
