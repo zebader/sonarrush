@@ -26,14 +26,18 @@ export const PLAYER_SPRITE_SCALE = PLAYER_HEIGHT / PLAYER_SPRITE_FRAME_HEIGHT;
 export const ROOM_TILE_SCALE = 1.5;
 /** Vertical space per tower level */
 export const LEVEL_HEIGHT_TILES = Math.round(10 * ROOM_TILE_SCALE);
-/** Tower room width — 16:9 relative to level height */
-export const WIDTH_IN_TILES = Math.round((LEVEL_HEIGHT_TILES * 16) / 9);
+/** Tower room width — mobile-first 4:5 portrait relative to level height */
+export const WIDTH_IN_TILES = Math.round((LEVEL_HEIGHT_TILES * 4) / 5);
 export const WORLD_WIDTH = WIDTH_IN_TILES * GRID;
 export const GAME_WIDTH = WORLD_WIDTH;
-/** Minimum empty tiles between a platform and the side walls */
-export const PLATFORM_WALL_MARGIN = Math.round(2 * ROOM_TILE_SCALE);
+/** Minimum empty tiles between a platform and the side walls — keeps a 2-tile pass-through gap */
+export const PLATFORM_WALL_MARGIN = 3;
 /** Max tile width for tower platforms after layout scaling */
 export const TOWER_MAX_PLATFORM_TILES = 4;
+/** Platform slab thickness — thinner than a tile for clearance & looks */
+export const PLATFORM_THICKNESS = GRID * 0.5;
+/** Interior wall thickness — slimmer than a tile, centered in its column */
+export const INTERIOR_WALL_THICKNESS = GRID * 0.5;
 /** Max tile gap between climb surfaces (jump + double jump at apex, with margin) */
 export const MAX_VERTICAL_JUMP_GAP_TILES = 5;
 export const GAME_HEIGHT = 720;

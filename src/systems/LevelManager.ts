@@ -2,6 +2,8 @@ import Phaser from 'phaser';
 import {
   GRID,
   PLAYER_HEIGHT,
+  PLATFORM_THICKNESS,
+  INTERIOR_WALL_THICKNESS,
   TOTAL_LEVELS,
   POWER_UP_FLOAT_Y,
   HORIZONTAL_WRAP_MAX_PLATFORM_TILES,
@@ -481,13 +483,14 @@ export class LevelManager {
         !isWrap && this.layout.needsTowerScale
           ? this.layout.scaleTowerTile(wall.x)
           : wall.x;
-      const w = (wall.w ?? 1) * GRID;
+      // Slim slab centered in the authored tile column(s)
+      const spanW = (wall.w ?? 1) * GRID;
       const h = wall.h * GRID;
       const rect = this.addStaticBody(
         this.walls,
-        xOffset + tileX * GRID + w / 2,
+        xOffset + tileX * GRID + spanW / 2,
         worldY + wall.y * GRID + h / 2,
-        w,
+        INTERIOR_WALL_THICKNESS,
         h,
         TERRAIN_FRAMES.wall
       );
@@ -542,9 +545,10 @@ export class LevelManager {
     for (const platform of definition.platforms) {
       const tile = this.resolvePlatformTile(definition, platform);
       const x = xOffset + tile.x * GRID + (tile.w * GRID) / 2;
-      const y = worldY + tile.y * GRID + GRID / 2;
+      // Top edge stays on the tile row — only the slab below gets thinner
+      const y = worldY + tile.y * GRID + PLATFORM_THICKNESS / 2;
       const w = tile.w * GRID;
-      const h = GRID;
+      const h = PLATFORM_THICKNESS;
       const rect = this.addStaticBody(
         this.platforms,
         x,

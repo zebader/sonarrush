@@ -1,5 +1,5 @@
 import Phaser from 'phaser';
-import { GRID } from '../config/constants';
+import { GRID, PLATFORM_THICKNESS } from '../config/constants';
 import { TERRAIN_FRAMES } from '../config/terrainTiles';
 import { MovingPlatformDef } from '../data/levels';
 import {
@@ -32,14 +32,15 @@ export class MovingPlatformSystem {
     for (const def of defs) {
       const w = def.w * GRID;
       const originX = xOffset + def.x * GRID + w / 2;
-      const originY = worldY + def.y * GRID + GRID / 2;
+      // Top edge stays on the tile row — only the slab below gets thinner
+      const originY = worldY + def.y * GRID + PLATFORM_THICKNESS / 2;
       const rangePx = def.rangeTiles * GRID;
 
       const rect = this.scene.add.rectangle(
         originX,
         originY,
         w,
-        GRID,
+        PLATFORM_THICKNESS,
         0x000000,
         0
       );

@@ -377,10 +377,10 @@ const EARLY_LAYOUTS: Omit<
   {
     floors: [REFERENCE_GROUND_ROW, 0],
     platforms: p(
-      { x: 2, y: 3, w: 5.5, exactW: true },
+      { x: 2.5, y: 3, w: 5.5, exactW: true },
       { x: 8, y: 6, w: 2 }
     ),
-    walls: [{ x: 2, y: 0, h: 3 }],
+    walls: [{ x: 2.5, y: 0, h: 3 }],
     lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
@@ -393,8 +393,8 @@ const EARLY_LAYOUTS: Omit<
     floors: [0],
     platforms: p({ x: 6, y: 3, w: 2 }, { x: 6, y: 6, w: 2 }),
     walls: [
-      { x: 2, y: 0, h: 8 },
-      { x: 4, y: 0, h: 8 },
+      { x: 2.5, y: 0, h: 8 },
+      { x: 5, y: 0, h: 8 },
     ],
     lockPlatforms: true,
     movingPlatforms: [],
@@ -404,10 +404,10 @@ const EARLY_LAYOUTS: Omit<
   {
     floors: [0],
     platforms: p(
-      { x: 2.5, y: 3.3, w: 5.5, exactW: true },
+      { x: 2.5, y: 3.3, w: 4.2, exactW: true },
       { x: 1, y: 6.7, w: 2 }
     ),
-    walls: [{ x: 7.8, y: 0, h: 3.3 }],
+    walls: [{ x: 6.7, y: 0, h: 3.3 }],
     lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
@@ -417,8 +417,8 @@ const EARLY_LAYOUTS: Omit<
     floors: [0],
     platforms: p({ x: 1.5, y: 3, w: 2 }, { x: 1.5, y: 6, w: 2 }),
     walls: [
-      { x: 5.5, y: 0, h: 8 },
-      { x: 7.5, y: 0, h: 8 },
+      { x: 4.2, y: 0, h: 8 },
+      { x: 6.7, y: 0, h: 8 },
     ],
     lockPlatforms: true,
     movingPlatforms: [],
@@ -429,22 +429,22 @@ const EARLY_LAYOUTS: Omit<
     floors: [0],
     platforms: p(
       { x: 1, y: 6, w: 4, exactW: true },
-      { x: 5, y: 3.3, w: 4, exactW: true },
-      { x: 6, y: 8, w: 2 }
+      { x: 5.5, y: 3.3, w: 4, exactW: true },
+      { x: 4.2, y: 8, w: 2 }
     ),
     walls: [{ x: 4.8, y: 0, h: 6 }],
     lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
-  /** Level 6 — offset divider wall with a right-side ladder of steps */
+  /** Level 6 — offset divider wall with a zig-zag ladder on the right */
   {
     floors: [0],
     platforms: p(
-      { x: 1, y: 7, w: 2 },
-      { x: 4, y: 5, w: 2 },
-      { x: 7, y: 3, w: 2 },
-      { x: 4.5, y: 1, w: 2 }
+      { x: 4.2, y: 7, w: 2 },
+      { x: 5.8, y: 5, w: 2 },
+      { x: 4.2, y: 3, w: 2 },
+      { x: 5.8, y: 1, w: 2 }
     ),
     walls: [{ x: 3, y: 0, h: 4 }],
     lockPlatforms: true,
@@ -455,10 +455,10 @@ const EARLY_LAYOUTS: Omit<
   {
     floors: [0],
     platforms: p(
-      { x: 2, y: 3.3, w: 5.5, exactW: true },
+      { x: 2.5, y: 3.3, w: 5.5, exactW: true },
       { x: 7.5, y: 6.7, w: 2 }
     ),
-    walls: [{ x: 2, y: 0, h: 3.3 }],
+    walls: [{ x: 2.5, y: 0, h: 3.3 }],
     lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
@@ -486,8 +486,8 @@ const EARLY_LAYOUTS: Omit<
     floors: [0],
     platforms: p({ x: 6, y: 2.7, w: 2 }, { x: 6, y: 6, w: 2 }),
     walls: [
-      { x: 2, y: 0, h: 8 },
-      { x: 4, y: 0, h: 6.7 },
+      { x: 2.5, y: 0, h: 8 },
+      { x: 5, y: 0, h: 6.7 },
     ],
     lockPlatforms: true,
     movingPlatforms: [],
@@ -509,27 +509,26 @@ function buildLateLevel(level: number): Omit<
       return {
         floors: [0],
         platforms: p(
-          { x: 2.5, y: 3.3, w: 5.5, exactW: true },
+          { x: 2.5, y: 3.3, w: 4.2, exactW: true },
           { x: 1, y: 6.7, w: 2 }
         ),
-        walls: [{ x: 7.8, y: 0, h: 3.3 }],
+        walls: [{ x: 6.7, y: 0, h: 3.3 }],
         lockPlatforms: true,
         movingPlatforms: [moving(4, 8, sw, level, 'x', 3)],
         projectileSpawners: projectilePack(level, [5]),
       };
-    /** Level 11 — offset divider wall + elevator on the right */
+    /** Level 11 — offset divider wall + elevator bridging the ladder */
     case 1:
       return {
         floors: [0],
         platforms: p(
-          { x: 1, y: 7, w: 2 },
-          { x: 4, y: 5, w: 2 },
-          { x: 7, y: 3, w: 2 },
-          { x: 4.5, y: 1, w: 2 }
+          { x: 4.2, y: 7, w: 2 },
+          { x: 4.2, y: 3, w: 2 },
+          { x: 5.8, y: 1, w: 2 }
         ),
         walls: [{ x: 3, y: 0, h: 4 }],
         lockPlatforms: true,
-        movingPlatforms: [moving(8, 6, sw, level, 'y', 2)],
+        movingPlatforms: [moving(5.8, 6, sw, level, 'y', 2)],
         projectileSpawners: projectilePack(level, [4, 7]),
       };
     /** Level 12 — mirrored chimney + low patrol platform */
@@ -538,8 +537,8 @@ function buildLateLevel(level: number): Omit<
         floors: [0],
         platforms: p({ x: 1.5, y: 3, w: 2 }, { x: 1.5, y: 6, w: 2 }),
         walls: [
-          { x: 5.5, y: 0, h: 8 },
-          { x: 7.5, y: 0, h: 8 },
+          { x: 4.2, y: 0, h: 8 },
+          { x: 6.7, y: 0, h: 8 },
         ],
         lockPlatforms: true,
         movingPlatforms: [moving(2.5, 8, sw, level, 'x', 2)],
@@ -551,8 +550,8 @@ function buildLateLevel(level: number): Omit<
         floors: [0],
         platforms: p(
           { x: 1, y: 6, w: 4, exactW: true },
-          { x: 5, y: 3.3, w: 4, exactW: true },
-          { x: 6, y: 8, w: 2 }
+          { x: 5.5, y: 3.3, w: 4, exactW: true },
+          { x: 4.2, y: 8, w: 2 }
         ),
         walls: [{ x: 4.8, y: 0, h: 6 }],
         lockPlatforms: true,
@@ -580,10 +579,10 @@ function buildLateLevel(level: number): Omit<
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 3.3, w: 5.5, exactW: true },
+          { x: 2.5, y: 3.3, w: 5.5, exactW: true },
           { x: 7.5, y: 6.7, w: 2 }
         ),
-        walls: [{ x: 2, y: 0, h: 3.3 }],
+        walls: [{ x: 2.5, y: 0, h: 3.3 }],
         lockPlatforms: true,
         movingPlatforms: [moving(5, 8, sw, level, 'y', 1.5)],
         projectileSpawners: projectilePack(level, [4, 7]),
@@ -594,8 +593,8 @@ function buildLateLevel(level: number): Omit<
         floors: [0],
         platforms: p({ x: 6, y: 2.7, w: 2 }, { x: 6, y: 6, w: 2 }),
         walls: [
-          { x: 2, y: 0, h: 8 },
-          { x: 4, y: 0, h: 8 },
+          { x: 2.5, y: 0, h: 8 },
+          { x: 5, y: 0, h: 8 },
         ],
         lockPlatforms: true,
         movingPlatforms: [moving(6.5, 8, sw, level, 'x', 1)],
@@ -607,8 +606,8 @@ function buildLateLevel(level: number): Omit<
         floors: [0],
         platforms: p(
           { x: 5, y: 6, w: 4, exactW: true },
-          { x: 1, y: 3.3, w: 4, exactW: true },
-          { x: 3, y: 8, w: 2 }
+          { x: 1, y: 3.3, w: 2.5, exactW: true },
+          { x: 4.2, y: 8, w: 2 }
         ),
         walls: [{ x: 5.2, y: 0, h: 6 }],
         lockPlatforms: true,
@@ -618,36 +617,29 @@ function buildLateLevel(level: number): Omit<
         ],
         projectileSpawners: projectilePack(level, [4, 7]),
       };
-    /** Level 18 — mirrored divider wall + two movers */
+    /** Level 18 — mirrored divider wall + patrol mover */
     case 8:
       return {
         floors: [0],
         platforms: p(
-          { x: 6.5, y: 7, w: 2 },
+          { x: 6.5, y: 6.7, w: 2 },
           { x: 4, y: 5, w: 2 },
           { x: 1, y: 3, w: 2 },
           { x: 4, y: 1, w: 2 }
         ),
         walls: [{ x: 6.5, y: 0, h: 4 }],
         lockPlatforms: true,
-        movingPlatforms: [
-          moving(2, 6, sw, level, 'x', 1),
-          moving(7, 4, sw, level, 'y', 1),
-        ],
+        movingPlatforms: [moving(2, 6, sw, level, 'x', 1)],
         projectileSpawners: projectilePack(level, [5, 8]),
       };
-    /** Level 19 — center chimney with side shelves */
+    /** Level 19 — center chimney entered from a low patrol platform */
     case 9:
       return {
         floors: [0],
-        platforms: p(
-          { x: 1, y: 5, w: 2 },
-          { x: 1, y: 2, w: 2 },
-          { x: 7.5, y: 4, w: 2 }
-        ),
+        platforms: p({ x: 1, y: 5, w: 2 }, { x: 1, y: 2, w: 2 }),
         walls: [
           { x: 4, y: 0, h: 7 },
-          { x: 6, y: 0, h: 7 },
+          { x: 6.7, y: 0, h: 7 },
         ],
         lockPlatforms: true,
         movingPlatforms: [moving(2, 8.5, sw, level, 'x', 1)],
@@ -658,13 +650,13 @@ function buildLateLevel(level: number): Omit<
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 3.3, w: 4, exactW: true },
+          { x: 2.5, y: 3.3, w: 4, exactW: true },
           { x: 8, y: 6.7, w: 2 },
           { x: 4.5, y: 8, w: 2 }
         ),
         walls: [
-          { x: 2, y: 0, h: 3.3 },
-          { x: 6.5, y: 0, h: 6 },
+          { x: 2.5, y: 0, h: 3.3 },
+          { x: 6.5, y: 0, h: 5.3 },
         ],
         lockPlatforms: true,
         movingPlatforms: [

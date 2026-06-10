@@ -3,27 +3,27 @@ import { GRID } from '../config/constants';
 import { BuiltLevel } from './LevelManager';
 import { PlayfieldLayout } from './PlayfieldLayout';
 import {
-  ROOM_BG_KEY,
-  ROOM_BG_ASPECT,
   ROOM_BG_SOURCE_WIDTH,
   ROOM_BG_SOURCE_HEIGHT,
   ROOM_BG_DEPTH,
+  getRoomBackground,
 } from '../config/roomBackground';
 
 function fitSizeToBox(
   boxWidth: number,
-  boxHeight: number
+  boxHeight: number,
+  aspect: number
 ): { width: number; height: number } {
   let width = boxWidth;
-  let height = width / ROOM_BG_ASPECT;
+  let height = width / aspect;
   if (height > boxHeight) {
     height = boxHeight;
-    width = height * ROOM_BG_ASPECT;
+    width = height * aspect;
   }
   return { width, height };
 }
 
-/** Per-room forest backdrop — centered in tower rooms, tiled on horizontal levels */
+/** Per-room backdrop — centered by default, bottom-anchored when configured */
 export class RoomBackgroundSystem {
   private readonly scene: Phaser.Scene;
   private readonly layout: PlayfieldLayout;
@@ -35,38 +35,54 @@ export class RoomBackgroundSystem {
 
   buildForLevel(built: BuiltLevel): void {
     const roomHeight = built.definition.heightInTiles * GRID;
+    const roomBottomY = built.worldY + roomHeight;
     const centerY = built.worldY + roomHeight / 2;
+    const bg = getRoomBackground(built.definition.level);
     const isWrap = built.definition.mode === 'horizontalWrap';
 
     if (isWrap) {
-      this.buildHorizontalRoom(centerY, roomHeight);
+      this.buildHorizontalRoom(centerY, roomHeight, bg);
     } else {
-      this.buildTowerRoom(centerY, roomHeight);
+      this.buildTowerRoom(centerY, roomBottomY, roomHeight, bg);
     }
   }
 
-  private buildTowerRoom(centerY: number, roomHeight: number): void {
+  private buildTowerRoom(
+    centerY: number,
+    roomBottomY: number,
+    roomHeight: number,
+    bg: ReturnType<typeof getRoomBackground>
+  ): void {
     const roomWidth = this.layout.towerWidth;
     const centerX = this.layout.towerLeft + roomWidth / 2;
-    const { width, height } = fitSizeToBox(roomWidth, roomHeight);
+    const { width, height } = fitSizeToBox(roomWidth, roomHeight, bg.aspect);
+
+    const imageY = bg.anchor === 'bottom' ? roomBottomY : centerY;
+    const originY = bg.anchor === 'bottom' ? 1 : 0.5;
 
     this.scene.add
-      .image(centerX, centerY, ROOM_BG_KEY)
+      .image(centerX, imageY, bg.key)
+      .setOrigin(0.5, originY)
       .setDisplaySize(width, height)
       .setDepth(ROOM_BG_DEPTH);
   }
 
-  private buildHorizontalRoom(centerY: number, roomHeight: number): void {
+  private buildHorizontalRoom(
+    centerY: number,
+    roomHeight: number,
+    bg: ReturnType<typeof getRoomBackground>
+  ): void {
     const { width: tileWidth, height: tileHeight } = fitSizeToBox(
-      roomHeight * ROOM_BG_ASPECT,
-      roomHeight
+      roomHeight * bg.aspect,
+      roomHeight,
+      bg.aspect
     );
     const strip = this.scene.add.tileSprite(
       this.layout.gameWidth / 2,
       centerY,
       this.layout.gameWidth,
       tileHeight,
-      ROOM_BG_KEY
+      bg.key
     );
     strip.setTileScale(
       tileWidth / ROOM_BG_SOURCE_WIDTH,
