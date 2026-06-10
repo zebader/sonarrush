@@ -36,3 +36,12 @@ export const BEAM_FLOOR_LEVELS: readonly number[] = [1, 2];
 
 /** 32×32 texture for the starting ground floor only */
 export const FIRST_FLOOR_KEY = 'first-floor';
+
+/** 32×32 pipe tiles for platform/wall visuals in the early rooms */
+export const PIPE_CENTER_KEY = 'pipe-center';
+/** Cap authored facing left — flip/rotate for the other ends */
+export const PIPE_END_KEY = 'pipe-end';
+/** Corner authored joining a pipe from above to one exiting right */
+export const PIPE_CORNER_KEY = 'pipe-corner';
+/** Rooms whose platforms and interior walls render as pipes */
+export const PIPE_PLATFORM_LEVELS: readonly number[] = [1, 2];

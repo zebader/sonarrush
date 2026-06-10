@@ -290,6 +290,14 @@ function enforceVerticalReachability<
     }
   }
 
+  // A wall whose bottom is jumpable from the lower surface and whose top
+  // reaches the upper surface is a wall-jump ladder — no helper step needed
+  const wallBridgesGap = (lowerY: number, upperY: number): boolean =>
+    (layout.walls ?? []).some(
+      (wall) =>
+        lowerY - (wall.y + wall.h) <= maxGap && wall.y - upperY <= maxGap
+    );
+
   for (let pass = 0; pass < 16; pass++) {
     const ys = sortedSurfaceYs();
     let inserted = false;
@@ -297,6 +305,9 @@ function enforceVerticalReachability<
     for (let i = 1; i < ys.length; i++) {
       const gap = ys[i - 1] - ys[i];
       if (gap <= maxGap) {
+        continue;
+      }
+      if (wallBridgesGap(ys[i - 1], ys[i])) {
         continue;
       }
 
@@ -370,28 +381,29 @@ const EARLY_LAYOUTS: Omit<
   'level' | 'widthInTiles' | 'heightInTiles'
 >[] = [
   /**
-   * Level 1 — sketch draft: long shelf at upper-mid height with a wall
-   * hanging from the ceiling down to the shelf's left end (Γ shape).
-   * Small right-side step keeps the climb reachable.
+   * Level 1 — S-shaped pipe: wall hangs from the ceiling down to the long
+   * shelf's left end, and the shelf's right end turns downward into a
+   * hanging wall the player wall-jumps up to start the climb.
    */
   {
     floors: [REFERENCE_GROUND_ROW, 0],
-    platforms: p(
-      { x: 2.5, y: 3, w: 5.5, exactW: true },
-      { x: 8, y: 6, w: 2 }
-    ),
-    walls: [{ x: 2.5, y: 0, h: 3 }],
+    platforms: p({ x: 2.5, y: 3, w: 5.5, exactW: true }),
+    walls: [
+      { x: 2.5, y: 0, h: 3 },
+      { x: 7, y: 3, h: 3 },
+    ],
     lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
   /**
    * Level 2 — sketch draft: two ceiling-hung walls form a wall-jump
-   * chimney on the left; two stacked shelves on the right.
+   * chimney on the left; two stacked shelves branch right from the
+   * inner chimney wall (left end sits on the vertical pipe).
    */
   {
     floors: [0],
-    platforms: p({ x: 6, y: 3, w: 2 }, { x: 6, y: 6, w: 2 }),
+    platforms: p({ x: 5, y: 3, w: 3 }, { x: 5, y: 6, w: 3 }),
     walls: [
       { x: 2.5, y: 0, h: 8 },
       { x: 5, y: 0, h: 8 },

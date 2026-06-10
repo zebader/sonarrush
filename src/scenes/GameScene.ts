@@ -41,6 +41,9 @@ import {
   CONCRETE_WALL_KEY,
   BEAM_FLOOR_KEY,
   FIRST_FLOOR_KEY,
+  PIPE_CENTER_KEY,
+  PIPE_END_KEY,
+  PIPE_CORNER_KEY,
 } from '../config/terrainTiles';
 import {
   ROOM_BG_KEY,
@@ -99,6 +102,9 @@ export class GameScene extends Phaser.Scene {
     this.load.image(CONCRETE_WALL_KEY, 'assets/concrete-wall.png');
     this.load.image(BEAM_FLOOR_KEY, 'assets/beam-floor.png');
     this.load.image(FIRST_FLOOR_KEY, 'assets/first-floor.png');
+    this.load.image(PIPE_CENTER_KEY, 'assets/pipe-center.png');
+    this.load.image(PIPE_END_KEY, 'assets/pipe-end.png');
+    this.load.image(PIPE_CORNER_KEY, 'assets/pipe-corner.png');
     this.load.spritesheet(PROJECTILE_SPRITE_KEY, 'assets/fireballs.png', {
       frameWidth: PROJECTILE_SPRITE_FRAME_WIDTH,
       frameHeight: PROJECTILE_SPRITE_FRAME_HEIGHT,

@@ -10,7 +10,13 @@ import {
   HORIZONTAL_WRAP_MIN_PLATFORM_TILES,
   HORIZONTAL_WRAP_REVERSE_SPEED,
 } from '../config/constants';
-import { LEVELS, LevelDefinition, TileRect, MovingPlatformDef } from '../data/levels';
+import {
+  LEVELS,
+  LevelDefinition,
+  TileRect,
+  WallRect,
+  MovingPlatformDef,
+} from '../data/levels';
 import { Player } from '../entities/Player';
 import { MovingPlatformSystem } from './MovingPlatformSystem';
 import { ProjectileSystem } from './ProjectileSystem';
@@ -23,6 +29,7 @@ import {
   BEAM_FLOOR_KEY,
   BEAM_FLOOR_LEVELS,
   FIRST_FLOOR_KEY,
+  PIPE_PLATFORM_LEVELS,
 } from '../config/terrainTiles';
 import {
   attachTerrainVisual,
@@ -30,6 +37,12 @@ import {
   TerrainStripOptions,
 } from './TerrainVisuals';
 import { RoomBackgroundSystem } from './RoomBackgroundSystem';
+import {
+  createHorizontalPipe,
+  createVerticalPipe,
+  PipeJoints,
+  VerticalPipeJoint,
+} from './PipeVisuals';
 
 export type BuiltLevel = {
   definition: LevelDefinition;
@@ -495,6 +508,7 @@ export class LevelManager {
 
     const isWrap = definition.mode === 'horizontalWrap';
     const xOffset = isWrap ? 0 : this.layout.towerLeft;
+    const isPipe = PIPE_PLATFORM_LEVELS.includes(definition.level);
 
     for (const wall of definition.walls) {
       const tileX =
@@ -504,16 +518,81 @@ export class LevelManager {
       // Slim slab centered in the authored tile column(s)
       const spanW = (wall.w ?? 1) * GRID;
       const h = wall.h * GRID;
-      const rect = this.addStaticBody(
-        this.walls,
-        xOffset + tileX * GRID + spanW / 2,
-        worldY + wall.y * GRID + h / 2,
-        INTERIOR_WALL_THICKNESS,
-        h,
-        TERRAIN_FRAMES.wall
-      );
+      const centerX = xOffset + tileX * GRID + spanW / 2;
+      const centerY = worldY + wall.y * GRID + h / 2;
+
+      let rect: Phaser.GameObjects.Rectangle;
+      if (isPipe) {
+        rect = this.addInvisibleStaticBody(
+          this.walls,
+          centerX,
+          centerY,
+          INTERIOR_WALL_THICKNESS,
+          h
+        );
+        createVerticalPipe(
+          this.scene,
+          centerX,
+          worldY + wall.y * GRID,
+          h,
+          this.wallPipeJoint(definition, wall)
+        );
+      } else {
+        rect = this.addStaticBody(
+          this.walls,
+          centerX,
+          centerY,
+          INTERIOR_WALL_THICKNESS,
+          h,
+          TERRAIN_FRAMES.wall
+        );
+      }
       rect.setData('chunkId', `level-${definition.level}`);
     }
+  }
+
+  /** Side of the platform the wall column lines up with, if any */
+  private pipeJointSide(
+    wall: WallRect,
+    platform: TileRect
+  ): 'left' | 'right' | null {
+    const wallSpan = wall.w ?? 1;
+    if (Math.abs(wall.x - platform.x) < 0.6) return 'left';
+    if (Math.abs(wall.x + wallSpan - (platform.x + platform.w)) < 0.6) {
+      return 'right';
+    }
+    return null;
+  }
+
+  /** Walls meeting a platform end from above or below → pipe corner joints */
+  private findPipeJoints(
+    definition: LevelDefinition,
+    platform: TileRect
+  ): PipeJoints {
+    const joints: PipeJoints = {};
+    for (const wall of definition.walls ?? []) {
+      const side = this.pipeJointSide(wall, platform);
+      if (!side) continue;
+      if (Math.abs(wall.y + wall.h - platform.y) < 0.05) {
+        joints[side] = 'up';
+      } else if (Math.abs(wall.y - platform.y) < 0.05) {
+        joints[side] = 'down';
+      }
+    }
+    return joints;
+  }
+
+  /** Which end of the wall joins a platform corner, if any */
+  private wallPipeJoint(
+    definition: LevelDefinition,
+    wall: WallRect
+  ): VerticalPipeJoint {
+    for (const platform of definition.platforms) {
+      if (!this.pipeJointSide(wall, platform)) continue;
+      if (Math.abs(wall.y + wall.h - platform.y) < 0.05) return 'bottom';
+      if (Math.abs(wall.y - platform.y) < 0.05) return 'top';
+    }
+    return null;
   }
 
   private buildWalls(definition: LevelDefinition, worldY: number): void {
@@ -573,6 +652,8 @@ export class LevelManager {
     const xOffset =
       definition.mode === 'horizontalWrap' ? 0 : this.layout.towerLeft;
 
+    const isPipe = PIPE_PLATFORM_LEVELS.includes(definition.level);
+
     for (const platform of definition.platforms) {
       const tile = this.resolvePlatformTile(definition, platform);
       const x = xOffset + tile.x * GRID + (tile.w * GRID) / 2;
@@ -580,14 +661,27 @@ export class LevelManager {
       const y = worldY + tile.y * GRID + PLATFORM_THICKNESS / 2;
       const w = tile.w * GRID;
       const h = PLATFORM_THICKNESS;
-      const rect = this.addStaticBody(
-        this.platforms,
-        x,
-        y,
-        w,
-        h,
-        TERRAIN_FRAMES.platform
-      );
+
+      let rect: Phaser.GameObjects.Rectangle;
+      if (isPipe) {
+        rect = this.addInvisibleStaticBody(this.platforms, x, y, w, h);
+        createHorizontalPipe(
+          this.scene,
+          xOffset + tile.x * GRID,
+          worldY + tile.y * GRID,
+          w,
+          this.findPipeJoints(definition, platform)
+        );
+      } else {
+        rect = this.addStaticBody(
+          this.platforms,
+          x,
+          y,
+          w,
+          h,
+          TERRAIN_FRAMES.platform
+        );
+      }
       rect.setData('chunkId', chunkId);
       if (definition.mode === 'horizontalWrap' && platform.scrollDir !== undefined) {
         rect.setData('scrollDir', platform.scrollDir);
