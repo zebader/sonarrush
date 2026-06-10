@@ -39,7 +39,11 @@ import {
   TILESET_KEY as TERRAIN_TILESET_KEY,
   TILESET_FRAME_SIZE as TERRAIN_FRAME_SIZE,
 } from '../config/terrainTiles';
-import { ROOM_BG_KEY, ROOM_ONE_BG_KEY } from '../config/roomBackground';
+import {
+  ROOM_BG_KEY,
+  ROOM_ONE_BG_KEY,
+  ROOM_TWO_BG_KEY,
+} from '../config/roomBackground';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -88,6 +92,7 @@ export class GameScene extends Phaser.Scene {
     });
     this.load.image(ROOM_BG_KEY, 'assets/room-bg.png');
     this.load.image(ROOM_ONE_BG_KEY, 'assets/room-one-bg.png');
+    this.load.image(ROOM_TWO_BG_KEY, 'assets/room-two-bg.png');
     this.load.spritesheet(PROJECTILE_SPRITE_KEY, 'assets/fireballs.png', {
       frameWidth: PROJECTILE_SPRITE_FRAME_WIDTH,
       frameHeight: PROJECTILE_SPRITE_FRAME_HEIGHT,

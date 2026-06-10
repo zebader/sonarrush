@@ -11,6 +11,10 @@ export const ROOM_ONE_BG_SOURCE_HEIGHT = 1024;
 export const ROOM_ONE_BG_ASPECT =
   ROOM_ONE_BG_SOURCE_WIDTH / ROOM_ONE_BG_SOURCE_HEIGHT;
 
+export const ROOM_TWO_BG_KEY = 'room-two-bg';
+/** Native asset size — 824×1024 (~4:5, matches the room proportion) */
+export const ROOM_TWO_BG_ASPECT = 824 / 1024;
+
 export const ROOM_BG_DEPTH = -20;
 
 export type RoomBackgroundAnchor = 'center' | 'bottom';
@@ -32,6 +36,11 @@ export const ROOM_BACKGROUNDS: Partial<Record<number, RoomBackgroundDef>> = {
   1: {
     key: ROOM_ONE_BG_KEY,
     aspect: ROOM_ONE_BG_ASPECT,
+    anchor: 'bottom',
+  },
+  2: {
+    key: ROOM_TWO_BG_KEY,
+    aspect: ROOM_TWO_BG_ASPECT,
     anchor: 'bottom',
   },
 };
