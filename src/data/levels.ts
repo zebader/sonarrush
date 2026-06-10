@@ -86,8 +86,6 @@ function scaleYRef(value: number): number {
 }
 
 const REF_PLATFORM_W = 2;
-const STAIR_LEFT_X = 2;
-const STAIR_RIGHT_X = 6;
 
 type RefPlatform = { x: number; y: number; w?: number; exactW?: boolean };
 
@@ -107,20 +105,6 @@ function clampTowerPlatformWidth(widthTiles: number): number {
 
 function scalePlatformWidth(refWidth: number): number {
   return clampTowerPlatformWidth(scaleXRef(refWidth));
-}
-
-/** Alternating left/right steps */
-function zigzagStairs(
-  ys: number[],
-  width = REF_PLATFORM_W,
-  leftX = STAIR_LEFT_X,
-  rightX = STAIR_RIGHT_X
-): TileRect[] {
-  return ys.map((y, index) => ({
-    x: index % 2 === 0 ? leftX : rightX,
-    y,
-    w: width,
-  }));
 }
 
 /** Platforms this low near a wall create inescapable pits */
@@ -416,90 +400,70 @@ const EARLY_LAYOUTS: Omit<
     movingPlatforms: [],
     projectileSpawners: [],
   },
+  /** Level 3 — mirrored Γ: long shelf with end wall on the right */
   {
     floors: [0],
     platforms: p(
-      { x: 3, y: 8, w: 2 },
-      { x: 6, y: 8, w: 2 },
-      { x: 2, y: 7, w: 2 },
-      { x: 5, y: 6, w: 3 },
-      { x: 7, y: 5, w: 2 },
-      { x: 3, y: 4, w: 2 },
-      { x: 6, y: 3, w: 4 },
-      { x: 2, y: 2, w: 2 },
-      { x: 5, y: 1, w: 2 },
-      { x: 7, y: 1, w: 2 }
+      { x: 2.5, y: 3.3, w: 5.5, exactW: true },
+      { x: 1, y: 6.7, w: 2 }
     ),
+    walls: [{ x: 7.8, y: 0, h: 3.3 }],
+    lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
+  /** Level 4 — mirrored chimney: walls right, stacked shelves left */
   {
     floors: [0],
-    platforms: p(
-      { x: 2, y: 8, w: 2 },
-      { x: 6, y: 8, w: 2 },
-      { x: 4, y: 7, w: 3 },
-      { x: 2, y: 6, w: 2 },
-      { x: 7, y: 5, w: 2 },
-      { x: 3, y: 4, w: 2 },
-      { x: 6, y: 3, w: 3 },
-      { x: 2, y: 2, w: 4 },
-      { x: 5, y: 1, w: 2 },
-      { x: 7, y: 1, w: 2 }
-    ),
-    movingPlatforms: [],
-    projectileSpawners: [],
-  },
-  {
-    floors: [0],
-    platforms: p(
-      { x: 2, y: 8, w: 3 },
-      { x: 6, y: 7, w: 2 },
-      { x: 3, y: 7, w: 2 },
-      { x: 7, y: 6, w: 2 },
-      { x: 2, y: 5, w: 2 },
-      { x: 5, y: 4, w: 4 },
-      { x: 3, y: 3, w: 2 },
-      { x: 7, y: 2, w: 2 },
-      { x: 2, y: 1, w: 3 },
-      { x: 6, y: 1, w: 2 }
-    ),
-    movingPlatforms: [],
-    projectileSpawners: [],
-  },
-  {
-    floors: [0],
-    platforms: [
-      ...p(
-        { x: 2, y: 8, w: 2 },
-        { x: 7, y: 8, w: 2 },
-        { x: 4, y: 7, w: 3 },
-        { x: 2, y: 6, w: 2 },
-        { x: 6, y: 5, w: 2 }
-      ),
-      ...zigzagStairs([4, 3, 2, 1], 2),
-      ...p({ x: 4, y: 2, w: 4 }),
+    platforms: p({ x: 1.5, y: 3, w: 2 }, { x: 1.5, y: 6, w: 2 }),
+    walls: [
+      { x: 5.5, y: 0, h: 8 },
+      { x: 7.5, y: 0, h: 8 },
     ],
+    lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
+  /** Level 5 — S-route: low shelf, Γ wall at its end, high shelf beyond */
   {
     floors: [0],
     platforms: p(
-      { x: 2, y: 8, w: 2 },
-      { x: 5, y: 8, w: 2 },
-      { x: 7, y: 7, w: 2 },
-      { x: 3, y: 6, w: 3 },
-      { x: 6, y: 5, w: 2 },
-      { x: 2, y: 4, w: 2 },
-      { x: 5, y: 3, w: 4 },
-      { x: 7, y: 2, w: 2 },
-      { x: 3, y: 1, w: 2 },
-      { x: 6, y: 1, w: 3 }
+      { x: 1, y: 6, w: 4, exactW: true },
+      { x: 5, y: 3.3, w: 4, exactW: true },
+      { x: 6, y: 8, w: 2 }
     ),
+    walls: [{ x: 4.8, y: 0, h: 6 }],
+    lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
+  /** Level 6 — offset divider wall with a right-side ladder of steps */
+  {
+    floors: [0],
+    platforms: p(
+      { x: 1, y: 7, w: 2 },
+      { x: 4, y: 5, w: 2 },
+      { x: 7, y: 3, w: 2 },
+      { x: 4.5, y: 1, w: 2 }
+    ),
+    walls: [{ x: 3, y: 0, h: 4 }],
+    lockPlatforms: true,
+    movingPlatforms: [],
+    projectileSpawners: [],
+  },
+  /** Level 7 — Γ shelf like level 1, with the entry step on the right */
+  {
+    floors: [0],
+    platforms: p(
+      { x: 2, y: 3.3, w: 5.5, exactW: true },
+      { x: 7.5, y: 6.7, w: 2 }
+    ),
+    walls: [{ x: 2, y: 0, h: 3.3 }],
+    lockPlatforms: true,
+    movingPlatforms: [],
+    projectileSpawners: [],
+  },
+  /** Level 8 slot — unused (horizontal wrap level) */
   {
     floors: [0],
     platforms: p(
@@ -517,20 +481,15 @@ const EARLY_LAYOUTS: Omit<
     movingPlatforms: [],
     projectileSpawners: [],
   },
+  /** Level 9 — level-2-style chimney with staggered wall heights */
   {
     floors: [0],
-    platforms: p(
-      { x: 2, y: 8, w: 2 },
-      { x: 6, y: 8, w: 2 },
-      { x: 3, y: 7, w: 2 },
-      { x: 7, y: 6, w: 3 },
-      { x: 2, y: 5, w: 2 },
-      { x: 5, y: 4, w: 2 },
-      { x: 3, y: 3, w: 4 },
-      { x: 7, y: 2, w: 2 },
-      { x: 2, y: 1, w: 2 },
-      { x: 6, y: 1, w: 3 }
-    ),
+    platforms: p({ x: 6, y: 2.7, w: 2 }, { x: 6, y: 6, w: 2 }),
+    walls: [
+      { x: 2, y: 0, h: 8 },
+      { x: 4, y: 0, h: 6.7 },
+    ],
+    lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
@@ -545,64 +504,59 @@ function buildLateLevel(level: number): Omit<
   const sw = REF_PLATFORM_W;
 
   switch (idx) {
+    /** Level 10 — mirrored Γ shelf + low patrol platform */
     case 0:
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 7, w: 3 },
-          { x: 6, y: 6, w: 2 },
-          { x: 3, y: 5, w: 2 },
-          { x: 6, y: 4, w: 2 },
-          { x: 2, y: 3, w: 3 },
-          { x: 5, y: 2, w: 2 },
-          { x: 3, y: 1, w: 2 }
+          { x: 2.5, y: 3.3, w: 5.5, exactW: true },
+          { x: 1, y: 6.7, w: 2 }
         ),
-        movingPlatforms: [moving(4, 2, sw, level)],
+        walls: [{ x: 7.8, y: 0, h: 3.3 }],
+        lockPlatforms: true,
+        movingPlatforms: [moving(4, 8, sw, level, 'x', 3)],
         projectileSpawners: projectilePack(level, [5]),
       };
+    /** Level 11 — offset divider wall + elevator on the right */
     case 1:
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 7, w: 2 },
-          { x: 6, y: 7, w: 2 },
-          { x: 4, y: 6, w: 3 },
-          { x: 2, y: 5, w: 2 },
-          { x: 7, y: 4, w: 2 },
-          { x: 3, y: 3, w: 4 },
-          { x: 6, y: 2, w: 2 },
-          { x: 2, y: 1, w: 3 }
+          { x: 1, y: 7, w: 2 },
+          { x: 4, y: 5, w: 2 },
+          { x: 7, y: 3, w: 2 },
+          { x: 4.5, y: 1, w: 2 }
         ),
-        movingPlatforms: [moving(3, 5, sw, level, 'x', 3)],
+        walls: [{ x: 3, y: 0, h: 4 }],
+        lockPlatforms: true,
+        movingPlatforms: [moving(8, 6, sw, level, 'y', 2)],
         projectileSpawners: projectilePack(level, [4, 7]),
       };
+    /** Level 12 — mirrored chimney + low patrol platform */
     case 2:
       return {
         floors: [0],
-        platforms: p(
-          { x: 2, y: 7, w: 2 },
-          { x: 5, y: 6, w: 3 },
-          { x: 7, y: 5, w: 2 },
-          { x: 3, y: 4, w: 2 },
-          { x: 6, y: 3, w: 2 },
-          { x: 2, y: 2, w: 4 },
-          { x: 5, y: 1, w: 2 }
-        ),
-        movingPlatforms: [moving(5, 5, sw, level, 'y', 2)],
+        platforms: p({ x: 1.5, y: 3, w: 2 }, { x: 1.5, y: 6, w: 2 }),
+        walls: [
+          { x: 5.5, y: 0, h: 8 },
+          { x: 7.5, y: 0, h: 8 },
+        ],
+        lockPlatforms: true,
+        movingPlatforms: [moving(2.5, 8, sw, level, 'x', 2)],
         projectileSpawners: projectilePack(level, [3, 6]),
       };
+    /** Level 13 — S-route + mid patrol between the shelves */
     case 3:
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 7, w: 2 },
-          { x: 6, y: 7, w: 2 },
-          { x: 3, y: 5, w: 3 },
-          { x: 7, y: 4, w: 2 },
-          { x: 2, y: 2, w: 4 },
-          { x: 5, y: 1, w: 2 }
+          { x: 1, y: 6, w: 4, exactW: true },
+          { x: 5, y: 3.3, w: 4, exactW: true },
+          { x: 6, y: 8, w: 2 }
         ),
-        movingPlatforms: [moving(3, 4, sw, level)],
+        walls: [{ x: 4.8, y: 0, h: 6 }],
+        lockPlatforms: true,
+        movingPlatforms: [moving(2, 4.5, sw, level, 'x', 1)],
         projectileSpawners: projectilePack(level, [5, 8]),
       };
     case 4:
@@ -621,87 +575,101 @@ function buildLateLevel(level: number): Omit<
         ],
         projectileSpawners: projectilePack(level, [4, 6, 8]),
       };
+    /** Level 15 — Γ shelf + elevator under the shelf's right half */
     case 5:
       return {
         floors: [0],
-        platforms: [
-          ...p({ x: 2, y: 8, w: 2 }, { x: 6, y: 7, w: 3 }),
-          ...zigzagStairs([5, 3, 1], 2),
-        ],
-        movingPlatforms: [
-          moving(4, 6, sw, level, 'y', 2),
-          moving(6, 2, sw, level),
-        ],
+        platforms: p(
+          { x: 2, y: 3.3, w: 5.5, exactW: true },
+          { x: 7.5, y: 6.7, w: 2 }
+        ),
+        walls: [{ x: 2, y: 0, h: 3.3 }],
+        lockPlatforms: true,
+        movingPlatforms: [moving(5, 8, sw, level, 'y', 1.5)],
         projectileSpawners: projectilePack(level, [4, 7]),
       };
+    /** Level 16 — staggered chimney + low patrol on the right */
     case 6:
       return {
         floors: [0],
-        platforms: p(
-          { x: 2, y: 7, w: 2 },
-          { x: 6, y: 7, w: 2 },
-          { x: 4, y: 5, w: 4 },
-          { x: 2, y: 3, w: 2 },
-          { x: 7, y: 2, w: 2 },
-          { x: 4, y: 1, w: 3 }
-        ),
-        movingPlatforms: [
-          moving(3, 5, sw, level, 'x', 2),
-          moving(6, 1, sw, level, 'y', 2),
+        platforms: p({ x: 6, y: 2.7, w: 2 }, { x: 6, y: 6, w: 2 }),
+        walls: [
+          { x: 2, y: 0, h: 8 },
+          { x: 4, y: 0, h: 8 },
         ],
+        lockPlatforms: true,
+        movingPlatforms: [moving(6.5, 8, sw, level, 'x', 1)],
         projectileSpawners: projectilePack(level, [5, 8]),
       };
+    /** Level 17 — mirrored S-route + two movers */
     case 7:
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 7, w: 3 },
-          { x: 6, y: 6, w: 2 },
-          { x: 3, y: 4, w: 2 },
-          { x: 7, y: 3, w: 3 },
-          { x: 2, y: 2, w: 4 },
-          { x: 5, y: 1, w: 2 }
+          { x: 5, y: 6, w: 4, exactW: true },
+          { x: 1, y: 3.3, w: 4, exactW: true },
+          { x: 3, y: 8, w: 2 }
         ),
+        walls: [{ x: 5.2, y: 0, h: 6 }],
+        lockPlatforms: true,
         movingPlatforms: [
-          moving(2, 5, sw, level, 'x', 3),
-          moving(6, 5, sw, level, 'x', 3),
-          moving(4, 2, sw, level, 'y', 2),
+          moving(2, 5.5, sw, level, 'x', 1),
+          moving(8, 3, sw, level, 'y', 1),
         ],
         projectileSpawners: projectilePack(level, [4, 7]),
       };
+    /** Level 18 — mirrored divider wall + two movers */
     case 8:
       return {
         floors: [0],
-        platforms: [
-          ...p({ x: 2, y: 7, w: 2 }, { x: 7, y: 7, w: 2 }),
-          ...zigzagStairs([5, 3, 1], 2),
-          ...p({ x: 4, y: 2, w: 4 }),
-        ],
+        platforms: p(
+          { x: 6.5, y: 7, w: 2 },
+          { x: 4, y: 5, w: 2 },
+          { x: 1, y: 3, w: 2 },
+          { x: 4, y: 1, w: 2 }
+        ),
+        walls: [{ x: 6.5, y: 0, h: 4 }],
+        lockPlatforms: true,
         movingPlatforms: [
-          moving(3, 5, sw, level, 'x', 2),
-          moving(6, 3, sw, level, 'x', 2),
-          moving(4, 1, sw, level, 'y', 2),
+          moving(2, 6, sw, level, 'x', 1),
+          moving(7, 4, sw, level, 'y', 1),
         ],
         projectileSpawners: projectilePack(level, [5, 8]),
       };
+    /** Level 19 — center chimney with side shelves */
     case 9:
+      return {
+        floors: [0],
+        platforms: p(
+          { x: 1, y: 5, w: 2 },
+          { x: 1, y: 2, w: 2 },
+          { x: 7.5, y: 4, w: 2 }
+        ),
+        walls: [
+          { x: 4, y: 0, h: 7 },
+          { x: 6, y: 0, h: 7 },
+        ],
+        lockPlatforms: true,
+        movingPlatforms: [moving(2, 8.5, sw, level, 'x', 1)],
+        projectileSpawners: projectilePack(level, [4, 7, 9]),
+      };
+    /** Level 20 — finale: Γ shelf, mid climbing wall & left elevator */
     default:
       return {
         floors: [0],
         platforms: p(
-          { x: 2, y: 8, w: 2 },
-          { x: 6, y: 7, w: 3 },
-          { x: 3, y: 6, w: 2 },
-          { x: 7, y: 5, w: 2 },
-          { x: 2, y: 4, w: 4 },
-          { x: 5, y: 2, w: 2 },
-          { x: 3, y: 1, w: 3 }
+          { x: 2, y: 3.3, w: 4, exactW: true },
+          { x: 8, y: 6.7, w: 2 },
+          { x: 4.5, y: 8, w: 2 }
         ),
+        walls: [
+          { x: 2, y: 0, h: 3.3 },
+          { x: 6.5, y: 0, h: 6 },
+        ],
+        lockPlatforms: true,
         movingPlatforms: [
-          moving(2, 6, sw, level, 'x', 3),
-          moving(6, 6, sw, level, 'x', 3),
-          moving(4, 2, sw, level, 'y', 2),
-          moving(6, 2, sw, level, 'y', 2),
+          moving(1, 6.5, sw, level, 'y', 1),
+          moving(7, 8.5, sw, level, 'x', 0.5),
         ],
         projectileSpawners: projectilePack(level, [4, 7, 9]),
       };
