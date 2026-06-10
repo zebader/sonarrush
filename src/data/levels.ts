@@ -21,6 +21,19 @@ export type TileRect = {
   w: number;
   /** horizontalWrap only — 1 = scroll with level flow, -1 = counter-scroll */
   scrollDir?: 1 | -1;
+  /** Keep the authored width — skip the tower max-width clamp */
+  exactW?: boolean;
+};
+
+/** Vertical wall inside a room — solid, supports wall-slide & wall-jump */
+export type WallRect = {
+  x: number;
+  /** Top tile row — wall extends downward */
+  y: number;
+  /** Height in tiles */
+  h: number;
+  /** Width in tiles (default 1) */
+  w?: number;
 };
 
 export type MovingPlatformDef = {
@@ -52,6 +65,10 @@ export type LevelDefinition = {
   scrollSpeed?: number;
   floors: number[];
   platforms: TileRect[];
+  /** Interior vertical walls (hand-designed levels) */
+  walls?: WallRect[];
+  /** Keep authored platform positions — reachability only inserts helpers */
+  lockPlatforms?: boolean;
   movingPlatforms: MovingPlatformDef[];
   projectileSpawners: ProjectileSpawnerDef[];
 };
@@ -72,7 +89,7 @@ const REF_PLATFORM_W = 2;
 const STAIR_LEFT_X = 2;
 const STAIR_RIGHT_X = 6;
 
-type RefPlatform = { x: number; y: number; w?: number };
+type RefPlatform = { x: number; y: number; w?: number; exactW?: boolean };
 
 /** Author platforms on the reference grid (mix sizes & positions freely) */
 function p(...tiles: RefPlatform[]): TileRect[] {
@@ -80,6 +97,7 @@ function p(...tiles: RefPlatform[]): TileRect[] {
     x: tile.x,
     y: tile.y,
     w: tile.w ?? REF_PLATFORM_W,
+    ...(tile.exactW ? { exactW: true } : {}),
   }));
 }
 
@@ -117,10 +135,19 @@ function scaleLayoutFromReference<
     platforms: layout.platforms.map((platform) => ({
       x: scaleXRef(platform.x),
       y: scaleYRef(platform.y),
-      w: scalePlatformWidth(platform.w),
+      w: platform.exactW
+        ? scaleXRef(platform.w)
+        : scalePlatformWidth(platform.w),
+      ...(platform.exactW ? { exactW: true } : {}),
       ...(platform.scrollDir !== undefined
         ? { scrollDir: platform.scrollDir }
         : {}),
+    })),
+    walls: layout.walls?.map((wall) => ({
+      ...wall,
+      x: scaleXRef(wall.x),
+      y: scaleYRef(wall.y),
+      h: scaleYRef(wall.h),
     })),
     movingPlatforms: layout.movingPlatforms.map((def) => ({
       ...def,
@@ -151,8 +178,9 @@ function sanitizePlatform(
   const maxX = roomWidthTiles - PLATFORM_WALL_MARGIN;
 
   let { x, y, w } = platform;
+  const maxW = platform.exactW ? maxX : TOWER_MAX_PLATFORM_TILES;
   x = clampTile(x, minX, maxX - 2);
-  w = Math.max(2, Math.min(TOWER_MAX_PLATFORM_TILES, Math.min(w, maxX - x)));
+  w = Math.max(2, Math.min(maxW, Math.min(w, maxX - x)));
   if (x + w > maxX) {
     w = maxX - x;
   }
@@ -242,7 +270,8 @@ function enforceVerticalReachability<
     })),
   ];
 
-  for (let pass = 0; pass < 12; pass++) {
+  const movePasses = layout.lockPlatforms ? 0 : 12;
+  for (let pass = 0; pass < movePasses; pass++) {
     const surfaces = collectSurfaces().sort((a, b) => b.y - a.y);
     let changed = false;
 
@@ -356,34 +385,34 @@ const EARLY_LAYOUTS: Omit<
   LevelDefinition,
   'level' | 'widthInTiles' | 'heightInTiles'
 >[] = [
+  /**
+   * Level 1 — sketch draft: long shelf at upper-mid height with a wall
+   * hanging from the ceiling down to the shelf's left end (Γ shape).
+   * Small right-side step keeps the climb reachable.
+   */
   {
     floors: [REFERENCE_GROUND_ROW, 0],
     platforms: p(
-      { x: 2, y: 8, w: 3 },
-      { x: 6, y: 7, w: 2 },
-      { x: 3, y: 6, w: 2 },
-      { x: 6, y: 5, w: 2 },
-      { x: 2, y: 4, w: 3 },
-      { x: 7, y: 3, w: 2 },
-      { x: 3, y: 2, w: 2 },
-      { x: 6, y: 1, w: 3 }
+      { x: 2, y: 3, w: 5.5, exactW: true },
+      { x: 8, y: 6, w: 2 }
     ),
+    walls: [{ x: 2, y: 0, h: 3 }],
+    lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },
+  /**
+   * Level 2 — sketch draft: two ceiling-hung walls form a wall-jump
+   * chimney on the left; two stacked shelves on the right.
+   */
   {
     floors: [0],
-    platforms: p(
-      { x: 2, y: 8, w: 2 },
-      { x: 7, y: 8, w: 2 },
-      { x: 4, y: 7, w: 3 },
-      { x: 2, y: 6, w: 2 },
-      { x: 6, y: 5, w: 2 },
-      { x: 3, y: 4, w: 4 },
-      { x: 7, y: 3, w: 2 },
-      { x: 2, y: 2, w: 2 },
-      { x: 5, y: 1, w: 3 }
-    ),
+    platforms: p({ x: 6, y: 3, w: 2 }, { x: 6, y: 6, w: 2 }),
+    walls: [
+      { x: 2, y: 0, h: 8 },
+      { x: 4, y: 0, h: 8 },
+    ],
+    lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],
   },

@@ -221,6 +221,7 @@ export class LevelManager {
     this.buildWalls(definition, worldY);
     this.buildFloors(definition, worldY, isFirst, index, chunkId, isWrap);
     this.buildPlatforms(definition, worldY);
+    this.buildInteriorWalls(definition, worldY);
 
     if (isWrap) {
       const roomHeight = definition.heightInTiles * GRID;
@@ -465,6 +466,32 @@ export class LevelManager {
       const scrollSpeed =
         scrollDir === -1 ? HORIZONTAL_WRAP_REVERSE_SPEED : defaultScrollSpeed;
       wrap.register(rect, scrollDir, scrollSpeed);
+    }
+  }
+
+  /** Hand-designed vertical walls inside a room — solid & wall-jumpable */
+  private buildInteriorWalls(definition: LevelDefinition, worldY: number): void {
+    if (!definition.walls?.length) return;
+
+    const isWrap = definition.mode === 'horizontalWrap';
+    const xOffset = isWrap ? 0 : this.layout.towerLeft;
+
+    for (const wall of definition.walls) {
+      const tileX =
+        !isWrap && this.layout.needsTowerScale
+          ? this.layout.scaleTowerTile(wall.x)
+          : wall.x;
+      const w = (wall.w ?? 1) * GRID;
+      const h = wall.h * GRID;
+      const rect = this.addStaticBody(
+        this.walls,
+        xOffset + tileX * GRID + w / 2,
+        worldY + wall.y * GRID + h / 2,
+        w,
+        h,
+        TERRAIN_FRAMES.wall
+      );
+      rect.setData('chunkId', `level-${definition.level}`);
     }
   }
 
