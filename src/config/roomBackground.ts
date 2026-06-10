@@ -5,8 +5,9 @@ export const ROOM_BG_SOURCE_HEIGHT = 571;
 export const ROOM_BG_ASPECT = ROOM_BG_SOURCE_WIDTH / ROOM_BG_SOURCE_HEIGHT;
 
 export const ROOM_ONE_BG_KEY = 'room-one-bg';
-export const ROOM_ONE_BG_SOURCE_WIDTH = 1024;
-export const ROOM_ONE_BG_SOURCE_HEIGHT = 576;
+/** Native asset size — 824×1024 (~4:5, matches the room proportion) */
+export const ROOM_ONE_BG_SOURCE_WIDTH = 824;
+export const ROOM_ONE_BG_SOURCE_HEIGHT = 1024;
 export const ROOM_ONE_BG_ASPECT =
   ROOM_ONE_BG_SOURCE_WIDTH / ROOM_ONE_BG_SOURCE_HEIGHT;
 
