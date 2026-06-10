@@ -42,6 +42,9 @@ export const INTERIOR_WALL_THICKNESS = GRID * 0.5;
 export const MAX_VERTICAL_JUMP_GAP_TILES = 5;
 export const GAME_HEIGHT = 720;
 
+/** Draw outlines on pipe/platform/wall colliders — set false for production */
+export const DEBUG_HITBOXES = false;
+
 export const TOTAL_LEVELS = 20;
 export const MOVING_PLATFORM_LEVEL_START = 10;
 export const PROJECTILE_LEVEL_START = 10;

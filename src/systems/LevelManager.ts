@@ -9,6 +9,7 @@ import {
   HORIZONTAL_WRAP_MAX_PLATFORM_TILES,
   HORIZONTAL_WRAP_MIN_PLATFORM_TILES,
   HORIZONTAL_WRAP_REVERSE_SPEED,
+  DEBUG_HITBOXES,
 } from '../config/constants';
 import {
   LEVELS,
@@ -40,6 +41,8 @@ import { RoomBackgroundSystem } from './RoomBackgroundSystem';
 import {
   createHorizontalPipe,
   createVerticalPipe,
+  getHorizontalPipeColliderBounds,
+  getVerticalPipeColliderBounds,
   PipeJoints,
   VerticalPipeJoint,
 } from './PipeVisuals';
@@ -511,31 +514,45 @@ export class LevelManager {
     const isPipe = PIPE_PLATFORM_LEVELS.includes(definition.level);
 
     for (const wall of definition.walls) {
-      const tileX =
-        !isWrap && this.layout.needsTowerScale
-          ? this.layout.scaleTowerTile(wall.x)
-          : wall.x;
+      const tileX = this.resolveInteriorWallTileX(definition, wall);
       // Slim slab centered in the authored tile column(s)
       const spanW = (wall.w ?? 1) * GRID;
       const h = wall.h * GRID;
       const centerX = xOffset + tileX * GRID + spanW / 2;
       const centerY = worldY + wall.y * GRID + h / 2;
+      const scaledWall = { ...wall, x: tileX };
+      const pipeCenterX = this.resolvePipeVisualCenterX(
+        definition,
+        scaledWall,
+        xOffset,
+        centerX
+      );
+      const wallJoint = this.wallPipeJoint(definition, scaledWall);
+      const pipeCollider = isPipe
+        ? getVerticalPipeColliderBounds(
+            pipeCenterX,
+            worldY + wall.y * GRID,
+            h,
+            wallJoint
+          )
+        : null;
 
       let rect: Phaser.GameObjects.Rectangle;
-      if (isPipe) {
+      if (isPipe && pipeCollider) {
         rect = this.addInvisibleStaticBody(
           this.walls,
-          centerX,
-          centerY,
-          INTERIOR_WALL_THICKNESS,
-          h
+          pipeCollider.x,
+          pipeCollider.y,
+          pipeCollider.width,
+          pipeCollider.height,
+          0xff4444
         );
         createVerticalPipe(
           this.scene,
-          centerX,
+          pipeCenterX,
           worldY + wall.y * GRID,
           h,
-          this.wallPipeJoint(definition, wall)
+          wallJoint
         );
       } else {
         rect = this.addStaticBody(
@@ -549,6 +566,44 @@ export class LevelManager {
       }
       rect.setData('chunkId', `level-${definition.level}`);
     }
+  }
+
+  private resolveInteriorWallTileX(
+    definition: LevelDefinition,
+    wall: WallRect
+  ): number {
+    if (definition.mode === 'horizontalWrap') return wall.x;
+    if (this.layout.needsTowerScale) {
+      return this.layout.scaleTowerTile(wall.x);
+    }
+    return wall.x;
+  }
+
+  /** Match vertical pipe center to the horizontal corner / branch cap position */
+  private resolvePipeVisualCenterX(
+    definition: LevelDefinition,
+    wall: WallRect,
+    xOffset: number,
+    defaultCenterX: number
+  ): number {
+    if (!PIPE_PLATFORM_LEVELS.includes(definition.level)) {
+      return defaultCenterX;
+    }
+
+    for (const platform of definition.platforms) {
+      const tile = this.resolvePlatformTile(definition, platform);
+      const side = this.pipeJointSide(wall, tile);
+      if (side === 'left') {
+        return xOffset + tile.x * GRID + PLATFORM_THICKNESS / 2;
+      }
+      if (side === 'right') {
+        return (
+          xOffset + (tile.x + tile.w) * GRID - PLATFORM_THICKNESS / 2
+        );
+      }
+    }
+
+    return defaultCenterX;
   }
 
   /** Side of the platform the wall column lines up with, if any */
@@ -569,13 +624,18 @@ export class LevelManager {
     definition: LevelDefinition,
     platform: TileRect
   ): PipeJoints {
+    const tile = this.resolvePlatformTile(definition, platform);
     const joints: PipeJoints = {};
     for (const wall of definition.walls ?? []) {
-      const side = this.pipeJointSide(wall, platform);
+      const scaledWall = {
+        ...wall,
+        x: this.resolveInteriorWallTileX(definition, wall),
+      };
+      const side = this.pipeJointSide(scaledWall, tile);
       if (!side) continue;
-      if (Math.abs(wall.y + wall.h - platform.y) < 0.05) {
+      if (Math.abs(wall.y + wall.h - tile.y) < 0.05) {
         joints[side] = 'up';
-      } else if (Math.abs(wall.y - platform.y) < 0.05) {
+      } else if (Math.abs(wall.y - tile.y) < 0.05) {
         joints[side] = 'down';
       }
     }
@@ -588,9 +648,10 @@ export class LevelManager {
     wall: WallRect
   ): VerticalPipeJoint {
     for (const platform of definition.platforms) {
-      if (!this.pipeJointSide(wall, platform)) continue;
-      if (Math.abs(wall.y + wall.h - platform.y) < 0.05) return 'bottom';
-      if (Math.abs(wall.y - platform.y) < 0.05) return 'top';
+      const tile = this.resolvePlatformTile(definition, platform);
+      if (!this.pipeJointSide(wall, tile)) continue;
+      if (Math.abs(wall.y + wall.h - tile.y) < 0.05) return 'bottom';
+      if (Math.abs(wall.y - tile.y) < 0.05) return 'top';
     }
     return null;
   }
@@ -656,23 +717,32 @@ export class LevelManager {
 
     for (const platform of definition.platforms) {
       const tile = this.resolvePlatformTile(definition, platform);
-      const x = xOffset + tile.x * GRID + (tile.w * GRID) / 2;
-      // Top edge stays on the tile row — only the slab below gets thinner
-      const y = worldY + tile.y * GRID + PLATFORM_THICKNESS / 2;
       const w = tile.w * GRID;
-      const h = PLATFORM_THICKNESS;
+      const surfaceY = worldY + tile.y * GRID;
+      const left = xOffset + tile.x * GRID;
 
       let rect: Phaser.GameObjects.Rectangle;
       if (isPipe) {
-        rect = this.addInvisibleStaticBody(this.platforms, x, y, w, h);
+        const collider = getHorizontalPipeColliderBounds(left, surfaceY, w);
+        rect = this.addInvisibleStaticBody(
+          this.platforms,
+          collider.x,
+          collider.y,
+          collider.width,
+          collider.height,
+          0x44ff44
+        );
         createHorizontalPipe(
           this.scene,
-          xOffset + tile.x * GRID,
-          worldY + tile.y * GRID,
+          left,
+          surfaceY,
           w,
           this.findPipeJoints(definition, platform)
         );
       } else {
+        const x = left + w / 2;
+        const y = surfaceY + PLATFORM_THICKNESS / 2;
+        const h = PLATFORM_THICKNESS;
         rect = this.addStaticBody(
           this.platforms,
           x,
@@ -719,9 +789,14 @@ export class LevelManager {
     x: number,
     y: number,
     w: number,
-    h: number
+    h: number,
+    debugColor?: number
   ): Phaser.GameObjects.Rectangle {
     const rect = this.scene.add.rectangle(x, y, w, h, 0x000000, 0);
+    if (DEBUG_HITBOXES && debugColor !== undefined) {
+      rect.setStrokeStyle(2, debugColor, 1);
+      rect.setDepth(50);
+    }
     this.scene.physics.add.existing(rect, true);
     group.add(rect);
     return rect;
