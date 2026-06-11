@@ -28,8 +28,13 @@ export class OneWayFloorSystem {
       // Never interrupt an upward jump
       if (movingUp) continue;
 
-      // Don't snap through floors while actively wall-sliding in the air
       if (player.state === PlayerState.WallSliding) {
+        // Block sliding down through passed checkpoint floors (room boundaries)
+        if (feet > floor.surfaceY) {
+          player.setY(floor.surfaceY - PLAYER_HEIGHT / 2);
+          player.body.setVelocityY(0);
+          player.oneWayGrounded = true;
+        }
         continue;
       }
 

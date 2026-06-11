@@ -13,14 +13,26 @@ export const PLAYER_WIDTH = GRID * 0.9;
 export const PLAYER_HEIGHT = GRID * 1.5;
 export const PLAYER_SPRITE_KEY = 'player-run';
 export const PLAYER_RUN_ANIM_KEY = 'player-run';
+export const PLAYER_RUN_SPRITE_FRAME_WIDTH = 204;
+export const PLAYER_RUN_SPRITE_FRAME_HEIGHT = 204;
+export const PLAYER_RUN_SPRITE_FRAME_COUNT = 25;
+/** Visible character height vs cell padding in the 5×5 run sheet */
+export const PLAYER_RUN_SPRITE_BODY_RATIO = 0.55;
+export const PLAYER_RUN_SPRITE_SCALE =
+  PLAYER_HEIGHT /
+  (PLAYER_RUN_SPRITE_FRAME_HEIGHT * PLAYER_RUN_SPRITE_BODY_RATIO);
 export const PLAYER_JUMP_SPRITE_KEY = 'player-jump';
 export const PLAYER_JUMP_ANIM_KEY = 'player-jump';
 export const PLAYER_FALL_SPRITE_KEY = 'player-fall';
 export const PLAYER_FALL_ANIM_KEY = 'player-fall';
-export const PLAYER_SPRITE_FRAME_WIDTH = 32;
-export const PLAYER_SPRITE_FRAME_HEIGHT = 32;
-export const PLAYER_AIR_SPRITE_FRAME_COUNT = 4;
-export const PLAYER_SPRITE_SCALE = PLAYER_HEIGHT / PLAYER_SPRITE_FRAME_HEIGHT;
+export const PLAYER_AIR_SPRITE_FRAME_WIDTH = 204;
+export const PLAYER_AIR_SPRITE_FRAME_HEIGHT = 204;
+export const PLAYER_AIR_SPRITE_FRAME_COUNT = 5;
+/** Visible character height vs frame padding in the 5-frame air sheets */
+export const PLAYER_AIR_SPRITE_BODY_RATIO = 0.39;
+export const PLAYER_AIR_SPRITE_SCALE =
+  PLAYER_HEIGHT /
+  (PLAYER_AIR_SPRITE_FRAME_HEIGHT * PLAYER_AIR_SPRITE_BODY_RATIO);
 
 /** Layouts are authored on a 10×10 reference grid, then scaled to the playfield */
 export const ROOM_TILE_SCALE = 1.5;

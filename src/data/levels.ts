@@ -412,14 +412,11 @@ const EARLY_LAYOUTS: Omit<
     movingPlatforms: [],
     projectileSpawners: [],
   },
-  /** Level 3 — mirrored Γ: long shelf with end wall on the right */
+  /** Level 3 — climb the traffic light to reach the checkpoint */
   {
     floors: [0],
-    platforms: p(
-      { x: 2.5, y: 3.3, w: 4.2, exactW: true },
-      { x: 1, y: 6.7, w: 2 }
-    ),
-    walls: [{ x: 6.7, y: 0, h: 3.3 }],
+    platforms: [],
+    walls: [],
     lockPlatforms: true,
     movingPlatforms: [],
     projectileSpawners: [],

@@ -25,9 +25,11 @@ import {
   PLAYER_JUMP_ANIM_KEY,
   PLAYER_FALL_SPRITE_KEY,
   PLAYER_FALL_ANIM_KEY,
-  PLAYER_SPRITE_FRAME_WIDTH,
-  PLAYER_SPRITE_FRAME_HEIGHT,
-  PLAYER_AIR_SPRITE_FRAME_COUNT,
+  PLAYER_RUN_SPRITE_FRAME_WIDTH,
+  PLAYER_RUN_SPRITE_FRAME_HEIGHT,
+  PLAYER_RUN_SPRITE_FRAME_COUNT,
+  PLAYER_AIR_SPRITE_FRAME_WIDTH,
+  PLAYER_AIR_SPRITE_FRAME_HEIGHT,
   PROJECTILE_SPRITE_KEY,
   PROJECTILE_ANIM_KEY,
   PROJECTILE_SPRITE_FRAME_WIDTH,
@@ -39,6 +41,7 @@ import {
   TILESET_KEY as TERRAIN_TILESET_KEY,
   TILESET_FRAME_SIZE as TERRAIN_FRAME_SIZE,
   CONCRETE_WALL_KEY,
+  ROAD_WALL_KEY,
   BEAM_FLOOR_KEY,
   FIRST_FLOOR_KEY,
   PIPE_CENTER_KEY,
@@ -49,7 +52,15 @@ import {
   ROOM_BG_KEY,
   ROOM_ONE_BG_KEY,
   ROOM_TWO_BG_KEY,
+  ROOM_THREE_BG_KEY,
+  ROOM_THREE_CARS_KEY,
 } from '../config/roomBackground';
+import {
+  TRAFFIC_LIGHT_BODY_KEY,
+  TRAFFIC_LIGHT_RED_KEY,
+  TRAFFIC_LIGHT_YELLOW_KEY,
+  TRAFFIC_LIGHT_GREEN_KEY,
+} from '../config/trafficLight';
 
 export class GameScene extends Phaser.Scene {
   private player!: Player;
@@ -80,17 +91,17 @@ export class GameScene extends Phaser.Scene {
 
   preload(): void {
     this.load.image(POWER_UP_IMAGE_KEY, 'assets/power-up-redbull.png');
-    this.load.spritesheet(PLAYER_SPRITE_KEY, 'assets/player-run.png', {
-      frameWidth: PLAYER_SPRITE_FRAME_WIDTH,
-      frameHeight: PLAYER_SPRITE_FRAME_HEIGHT,
+    this.load.spritesheet(PLAYER_SPRITE_KEY, 'assets/baldman-run.png', {
+      frameWidth: PLAYER_RUN_SPRITE_FRAME_WIDTH,
+      frameHeight: PLAYER_RUN_SPRITE_FRAME_HEIGHT,
     });
     this.load.spritesheet(PLAYER_JUMP_SPRITE_KEY, 'assets/player-jump.png', {
-      frameWidth: PLAYER_SPRITE_FRAME_WIDTH,
-      frameHeight: PLAYER_SPRITE_FRAME_HEIGHT,
+      frameWidth: PLAYER_AIR_SPRITE_FRAME_WIDTH,
+      frameHeight: PLAYER_AIR_SPRITE_FRAME_HEIGHT,
     });
     this.load.spritesheet(PLAYER_FALL_SPRITE_KEY, 'assets/player-fall.png', {
-      frameWidth: PLAYER_SPRITE_FRAME_WIDTH,
-      frameHeight: PLAYER_SPRITE_FRAME_HEIGHT,
+      frameWidth: PLAYER_AIR_SPRITE_FRAME_WIDTH,
+      frameHeight: PLAYER_AIR_SPRITE_FRAME_HEIGHT,
     });
     this.load.spritesheet(TERRAIN_TILESET_KEY, 'assets/tileset.png', {
       frameWidth: TERRAIN_FRAME_SIZE,
@@ -99,7 +110,14 @@ export class GameScene extends Phaser.Scene {
     this.load.image(ROOM_BG_KEY, 'assets/room-bg.png');
     this.load.image(ROOM_ONE_BG_KEY, 'assets/room-one-bg.png');
     this.load.image(ROOM_TWO_BG_KEY, 'assets/room-two-bg.png');
+    this.load.image(ROOM_THREE_BG_KEY, 'assets/room-three-bg.png');
+    this.load.image(ROOM_THREE_CARS_KEY, 'assets/room-three-cars.png');
+    this.load.image(TRAFFIC_LIGHT_BODY_KEY, 'assets/traffic-light-body.png');
+    this.load.image(TRAFFIC_LIGHT_RED_KEY, 'assets/traffic-light-red.png');
+    this.load.image(TRAFFIC_LIGHT_YELLOW_KEY, 'assets/traffic-light-yellow.png');
+    this.load.image(TRAFFIC_LIGHT_GREEN_KEY, 'assets/traffic-light-green.png');
     this.load.image(CONCRETE_WALL_KEY, 'assets/concrete-wall.png');
+    this.load.image(ROAD_WALL_KEY, 'assets/road-wall.png');
     this.load.image(BEAM_FLOOR_KEY, 'assets/beam-floor.png');
     this.load.image(FIRST_FLOOR_KEY, 'assets/first-floor.png');
     this.load.image(PIPE_CENTER_KEY, 'assets/pipe-center.png');
@@ -129,28 +147,28 @@ export class GameScene extends Phaser.Scene {
       key: PLAYER_RUN_ANIM_KEY,
       frames: this.anims.generateFrameNumbers(PLAYER_SPRITE_KEY, {
         start: 0,
-        end: 9,
+        end: PLAYER_RUN_SPRITE_FRAME_COUNT - 1,
       }),
-      frameRate: 12,
+      frameRate: 30,
       repeat: -1,
     });
     this.anims.create({
       key: PLAYER_JUMP_ANIM_KEY,
       frames: this.anims.generateFrameNumbers(PLAYER_JUMP_SPRITE_KEY, {
         start: 0,
-        end: PLAYER_AIR_SPRITE_FRAME_COUNT - 1,
+        end: 0,
       }),
       frameRate: 12,
-      repeat: -1,
+      repeat: 0,
     });
     this.anims.create({
       key: PLAYER_FALL_ANIM_KEY,
       frames: this.anims.generateFrameNumbers(PLAYER_FALL_SPRITE_KEY, {
-        start: 0,
-        end: PLAYER_AIR_SPRITE_FRAME_COUNT - 1,
+        start: 4,
+        end: 4,
       }),
       frameRate: 12,
-      repeat: -1,
+      repeat: 0,
     });
     const projectileFrameStart =
       PROJECTILE_SPRITE_ROW * PROJECTILE_SPRITE_FRAME_COUNT;

@@ -7,9 +7,12 @@ import {
   PLAYER_RUN_ANIM_KEY,
   PLAYER_JUMP_ANIM_KEY,
   PLAYER_FALL_ANIM_KEY,
-  PLAYER_SPRITE_FRAME_WIDTH,
-  PLAYER_SPRITE_FRAME_HEIGHT,
-  PLAYER_SPRITE_SCALE,
+  PLAYER_RUN_SPRITE_FRAME_WIDTH,
+  PLAYER_RUN_SPRITE_FRAME_HEIGHT,
+  PLAYER_AIR_SPRITE_FRAME_WIDTH,
+  PLAYER_AIR_SPRITE_FRAME_HEIGHT,
+  PLAYER_AIR_SPRITE_SCALE,
+  PLAYER_RUN_SPRITE_SCALE,
   RUN_SPEED,
 } from '../config/constants';
 
@@ -44,19 +47,30 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     scene.add.existing(this);
     scene.physics.add.existing(this);
 
-    this.setScale(PLAYER_SPRITE_SCALE);
+    this.applySpriteMetrics(true);
     this.setOrigin(0.5, 0.5);
-
-    const bodyWidth = PLAYER_WIDTH / PLAYER_SPRITE_SCALE;
-    const bodyHeight = PLAYER_HEIGHT / PLAYER_SPRITE_SCALE;
-    this.body.setSize(bodyWidth, bodyHeight);
-    this.body.setOffset(
-      (PLAYER_SPRITE_FRAME_WIDTH - bodyWidth) / 2,
-      (PLAYER_SPRITE_FRAME_HEIGHT - bodyHeight) / 2
-    );
     this.body.setCollideWorldBounds(false);
     this.body.setMaxVelocity(RUN_SPEED, 600);
     this.setDepth(0);
+  }
+
+  private applySpriteMetrics(forRun: boolean): void {
+    const frameW = forRun
+      ? PLAYER_RUN_SPRITE_FRAME_WIDTH
+      : PLAYER_AIR_SPRITE_FRAME_WIDTH;
+    const frameH = forRun
+      ? PLAYER_RUN_SPRITE_FRAME_HEIGHT
+      : PLAYER_AIR_SPRITE_FRAME_HEIGHT;
+    const scale = forRun ? PLAYER_RUN_SPRITE_SCALE : PLAYER_AIR_SPRITE_SCALE;
+
+    this.setScale(scale);
+    const bodyWidth = PLAYER_WIDTH / scale;
+    const bodyHeight = PLAYER_HEIGHT / scale;
+    this.body.setSize(bodyWidth, bodyHeight);
+    this.body.setOffset(
+      (frameW - bodyWidth) / 2,
+      (frameH - bodyHeight) / 2
+    );
   }
 
   get isGrounded(): boolean {
@@ -114,6 +128,8 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
   }
 
   private playAnim(key: string): void {
+    const forRun = key === PLAYER_RUN_ANIM_KEY;
+    this.applySpriteMetrics(forRun);
     if (!this.anims.isPlaying || this.anims.currentAnim?.key !== key) {
       this.play(key);
     }
@@ -136,6 +152,7 @@ export class Player extends Phaser.Physics.Arcade.Sprite {
     this.setNormalVisual();
     this.setAlpha(1);
     this.anims.stop();
+    this.applySpriteMetrics(true);
     this.setTexture(PLAYER_SPRITE_KEY, 0);
   }
 }

@@ -180,7 +180,10 @@ export class PlayerController {
 
   private isLandingFromWallSlide(): boolean {
     if (this.player.oneWayGrounded) return true;
-    return this.player.body.blocked.down;
+    const body = this.player.body;
+    if (body.blocked.down) return true;
+    // Side contact can prevent blocked.down even when feet are on a platform
+    return body.touching.down && body.velocity.y >= 0;
   }
 
   private isOnFloor(): boolean {

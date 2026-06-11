@@ -27,6 +27,8 @@ import {
   TERRAIN_FRAMES,
   CONCRETE_WALL_KEY,
   CONCRETE_WALL_LEVELS,
+  ROAD_WALL_KEY,
+  ROAD_WALL_LEVELS,
   BEAM_FLOOR_KEY,
   BEAM_FLOOR_LEVELS,
   FIRST_FLOOR_KEY,
@@ -38,6 +40,8 @@ import {
   TerrainStripOptions,
 } from './TerrainVisuals';
 import { RoomBackgroundSystem } from './RoomBackgroundSystem';
+import { TrafficLightSystem } from './TrafficLightSystem';
+import { TRAFFIC_LIGHT_LEVEL } from '../config/trafficLight';
 import {
   createHorizontalPipe,
   createVerticalPipe,
@@ -85,6 +89,7 @@ export class LevelManager {
   readonly projectiles: ProjectileSystem;
   private horizontalWrapLevels: HorizontalWrapSystem[] = [];
   private roomBackgrounds: RoomBackgroundSystem;
+  private trafficLight: TrafficLightSystem;
 
   readonly builtLevels: BuiltLevel[] = [];
   readonly oneWayFloors: OneWayFloorRecord[] = [];
@@ -101,6 +106,7 @@ export class LevelManager {
     this.movingPlatforms = new MovingPlatformSystem(scene);
     this.projectiles = new ProjectileSystem(scene, onProjectileHit);
     this.roomBackgrounds = new RoomBackgroundSystem(scene, this.layout);
+    this.trafficLight = new TrafficLightSystem();
   }
 
   getPlayfieldLayout(): PlayfieldLayout {
@@ -248,6 +254,16 @@ export class LevelManager {
     this.buildFloors(definition, worldY, isFirst, index, chunkId, isWrap);
     this.buildPlatforms(definition, worldY);
     this.buildInteriorWalls(definition, worldY);
+
+    if (definition.level === TRAFFIC_LIGHT_LEVEL) {
+      this.trafficLight.build(
+        this.scene,
+        this.layout,
+        this.walls,
+        worldY,
+        definition.heightInTiles
+      );
+    }
 
     if (isWrap) {
       const roomHeight = definition.heightInTiles * GRID;
@@ -665,7 +681,9 @@ export class LevelManager {
     // so the dark edge faces the room interior
     const textureKey = CONCRETE_WALL_LEVELS.includes(definition.level)
       ? CONCRETE_WALL_KEY
-      : undefined;
+      : ROAD_WALL_LEVELS.includes(definition.level)
+        ? ROAD_WALL_KEY
+        : undefined;
 
     this.addWall(
       this.layout.towerLeft,

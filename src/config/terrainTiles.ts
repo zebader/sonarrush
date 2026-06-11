@@ -25,6 +25,11 @@ export const CONCRETE_WALL_KEY = 'concrete-wall';
 /** Rooms whose side walls use the concrete texture (right wall flipped) */
 export const CONCRETE_WALL_LEVELS: readonly number[] = [1, 2];
 
+/** 32×32 road curb texture for side walls — authored facing the left wall */
+export const ROAD_WALL_KEY = 'road-wall';
+/** Rooms whose side walls use the road curb texture (right wall flipped) */
+export const ROAD_WALL_LEVELS: readonly number[] = [3];
+
 /** 32×32 dark beam texture for checkpoint floor strips */
 export const BEAM_FLOOR_KEY = 'beam-floor';
 /**

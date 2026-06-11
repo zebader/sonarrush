@@ -15,7 +15,16 @@ export const ROOM_TWO_BG_KEY = 'room-two-bg';
 /** Native asset size — 824×1024 (~4:5, matches the room proportion) */
 export const ROOM_TWO_BG_ASPECT = 824 / 1024;
 
+export const ROOM_THREE_BG_KEY = 'room-three-bg';
+/** Native asset size — 824×1024 (~4:5, matches the room proportion) */
+export const ROOM_THREE_BG_ASPECT = 824 / 1024;
+
+/** Traffic overlay for room 3 — same 4:5 size as the road backdrop */
+export const ROOM_THREE_CARS_KEY = 'room-three-cars';
+
 export const ROOM_BG_DEPTH = -20;
+/** Foreground room decoration layer (cars, etc.) */
+export const ROOM_OVERLAY_DEPTH = ROOM_BG_DEPTH + 1;
 
 export type RoomBackgroundAnchor = 'center' | 'bottom';
 
@@ -23,6 +32,10 @@ export type RoomBackgroundDef = {
   key: string;
   aspect: number;
   anchor: RoomBackgroundAnchor;
+  /** Optional layer drawn on top of the backdrop (e.g. traffic) */
+  overlayKey?: string;
+  /** Idle vibration on the overlay — stuck-in-traffic feel */
+  overlayVibration?: boolean;
 };
 
 const DEFAULT_ROOM_BG: RoomBackgroundDef = {
@@ -42,6 +55,13 @@ export const ROOM_BACKGROUNDS: Partial<Record<number, RoomBackgroundDef>> = {
     key: ROOM_TWO_BG_KEY,
     aspect: ROOM_TWO_BG_ASPECT,
     anchor: 'bottom',
+  },
+  3: {
+    key: ROOM_THREE_BG_KEY,
+    aspect: ROOM_THREE_BG_ASPECT,
+    anchor: 'bottom',
+    overlayKey: ROOM_THREE_CARS_KEY,
+    overlayVibration: true,
   },
 };
 

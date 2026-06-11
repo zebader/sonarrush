@@ -6,6 +6,7 @@ import {
   ROOM_BG_SOURCE_WIDTH,
   ROOM_BG_SOURCE_HEIGHT,
   ROOM_BG_DEPTH,
+  ROOM_OVERLAY_DEPTH,
   getRoomBackground,
 } from '../config/roomBackground';
 
@@ -65,6 +66,42 @@ export class RoomBackgroundSystem {
       .setOrigin(0.5, originY)
       .setDisplaySize(width, height)
       .setDepth(ROOM_BG_DEPTH);
+
+    if (bg.overlayKey) {
+      const overlay = this.scene.add
+        .image(centerX, imageY, bg.overlayKey)
+        .setOrigin(0.5, originY)
+        .setDisplaySize(width, height)
+        .setDepth(ROOM_OVERLAY_DEPTH);
+
+      if (bg.overlayVibration) {
+        this.addTrafficVibration(overlay, centerX, imageY);
+      }
+    }
+  }
+
+  /** Subtle idle shake — cars stuck in a jam */
+  private addTrafficVibration(
+    overlay: Phaser.GameObjects.Image,
+    baseX: number,
+    baseY: number
+  ): void {
+    this.scene.tweens.add({
+      targets: overlay,
+      x: baseX + 1.4,
+      duration: 95,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
+    this.scene.tweens.add({
+      targets: overlay,
+      y: baseY - 0.9,
+      duration: 130,
+      yoyo: true,
+      repeat: -1,
+      ease: 'Sine.easeInOut',
+    });
   }
 
   private buildHorizontalRoom(
